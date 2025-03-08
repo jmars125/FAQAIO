@@ -5,194 +5,289 @@
     <style>
         :root {
             --bg-color: #ffffff;
-            --text-color: #000000;
-            --sidebar-bg: #f0f0f0;
-            --hover-color: #e0e0e0;
+            --text-color: #2c3e50;
+            --sidebar-bg: #f8f9fa;
+            --hover-color: #e9ecef;
             --code-bg: #f8f8f8;
-            --section-border: #cccccc;
+            --section-border: #dee2e6;
             --subsection-bg: #f5f5f5;
+            --primary-color: #007bff;
+            --primary-hover: #0056b3;
+            --radius-sm: 4px;
+            --radius-md: 6px;
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --font-size-sm: 14px;
+            --font-size-md: 16px;
+            --transition: all 0.2s ease-in-out;
         }
 
         [data-theme="dark"] {
             --bg-color: #1a1a1a;
-            --text-color: #ffffff;
+            --text-color: #e1e1e1;
             --sidebar-bg: #2d2d2d;
             --hover-color: #3d3d3d;
             --code-bg: #2a2a2a;
             --section-border: #404040;
             --subsection-bg: #2a2a2a;
+            --primary-color: #4dabf7;
+            --primary-hover: #339af0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         body {
             margin: 0;
             padding: 0;
-            font-family: 'Courier New', Courier, monospace;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
             display: flex;
-            transition: all 0.3s ease;
-            line-height: 1.2;
+            transition: var(--transition);
+            line-height: 1.5;
+            height: 100vh;
+            overflow: hidden;
         }
 
         #sidebar {
             width: 300px;
             height: 100vh;
             background-color: var(--sidebar-bg);
-            padding: 20px;
+            border-right: 1px solid var(--section-border);
+            display: flex;
+            flex-direction: column;
+            transition: var(--transition);
+        }
+
+        .controls {
+            padding: var(--spacing-md);
+            border-bottom: 1px solid var(--section-border);
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+            position: sticky;
+            top: 0;
+            background-color: var(--sidebar-bg);
+            z-index: 10;
+        }
+
+        #toc {
+            flex: 1;
             overflow-y: auto;
-            flex-shrink: 0;
+            padding: var(--spacing-md);
+        }
+
+        button {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: none;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+            transition: var(--transition);
+        }
+
+        button:hover:not(:disabled) {
+            background-color: var(--primary-hover);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        input[type="text"] {
+            padding: var(--spacing-sm);
+            border: 1px solid var(--section-border);
+            border-radius: var(--radius-sm);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-size: var(--font-size-sm);
+            width: 100%;
+            transition: var(--transition);
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .search-controls {
+            padding: var(--spacing-md);
+            background-color: var(--bg-color);
+            border-bottom: 1px solid var(--section-border);
+            display: grid;
+            grid-template-columns: 1fr auto auto auto;
+            gap: var(--spacing-sm);
+            align-items: center;
+            position: sticky;
+            top: 56px;
+            z-index: 10;
+        }
+
+        .search-count {
+            font-size: var(--font-size-sm);
+            color: var(--text-color);
+            white-space: nowrap;
+        }
+
+        .search-result {
+            background-color: rgba(255, 215, 0, 0.3);
+            border-radius: var(--radius-sm);
+            padding: 0 2px;
+        }
+
+        [data-theme="dark"] .search-result {
+            background-color: rgba(255, 215, 0, 0.2);
+        }
+
+        .search-result.current {
+            background-color: rgba(255, 215, 0, 0.6);
+        }
+
+        #content-wrapper {
+            flex: 1;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .navigation {
+            padding: var(--spacing-md);
+            background-color: var(--bg-color);
+            border-bottom: 1px solid var(--section-border);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .nav-title {
+            font-weight: 600;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         #content {
-            flex-grow: 1;
-            padding: 20px;
-            height: 100vh;
+            flex: 1;
+            padding: var(--spacing-md);
             overflow-y: auto;
+            line-height: 1.6;
             white-space: pre-wrap;
             font-family: 'Courier New', Courier, monospace;
         }
 
-        .controls {
-            margin-bottom: 20px;
-            position: sticky;
-            top: 0;
-            background-color: var(--sidebar-bg);
-            padding: 10px 0;
-            z-index: 100;
+        .section-header {
+            font-size: 1.2em;
+            font-weight: 600;
+            padding: var(--spacing-md) 0;
+            border-bottom: 1px solid var(--section-border);
+            margin-bottom: var(--spacing-md);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
         }
 
-        button {
-            padding: 8px 16px;
-            margin: 5px;
-            cursor: pointer;
-            background-color: var(--hover-color);
-            border: 1px solid var(--section-border);
-            color: var(--text-color);
-            border-radius: 4px;
-        }
-
-        button:hover {
-            background-color: var(--section-border);
-        }
-
-        #toc {
-            padding-bottom: 20px;
+        .subsection-header {
+            font-size: 1.1em;
+            font-weight: 500;
+            padding: var(--spacing-sm) 0;
+            border-bottom: 1px dashed var(--section-border);
+            margin: var(--spacing-md) 0 var(--spacing-sm);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
         }
 
         #toc a {
             display: block;
-            padding: 8px;
+            padding: var(--spacing-sm);
             color: var(--text-color);
             text-decoration: none;
+            border-radius: var(--radius-sm);
             margin: 2px 0;
-            font-size: 14px;
-            border-radius: 4px;
-        }
-
-        #toc .section-code {
-            color: #888;
-            font-size: 12px;
-            margin-left: 8px;
-        }
-
-        #toc .subsection {
-            margin-left: 20px;
-            font-size: 13px;
-            background-color: var(--subsection-bg);
+            transition: var(--transition);
         }
 
         #toc a:hover {
             background-color: var(--hover-color);
         }
 
+        #toc .section-code {
+            color: var(--primary-color);
+            font-size: var(--font-size-sm);
+            opacity: 0.8;
+        }
+
+        #toc .subsection {
+            padding-left: var(--spacing-lg);
+            font-size: var(--font-size-sm);
+        }
+
         .theme-toggle {
             position: fixed;
-            top: 20px;
-            right: 20px;
+            top: var(--spacing-md);
+            right: var(--spacing-md);
             z-index: 1000;
-            background-color: var(--bg-color);
-            padding: 5px;
-            border-radius: 4px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
 
-        .theme-toggle button {
-            background-color: var(--hover-color);
-            color: var(--text-color);
-            border: 1px solid var(--section-border);
-            padding: 8px 16px;
-            cursor: pointer;
-            border-radius: 4px;
+        @media (max-width: 768px) {
+            #sidebar {
+                position: fixed;
+                left: -300px;
+                z-index: 1000;
+                transition: left 0.3s ease;
+            }
+
+            #sidebar.active {
+                left: 0;
+            }
+
+            .search-controls {
+                grid-template-columns: 1fr;
+            }
+
+            .navigation {
+                padding: var(--spacing-sm);
+            }
+
+            .theme-toggle {
+                top: auto;
+                bottom: var(--spacing-md);
+            }
         }
 
-        .theme-toggle button:hover {
-            background-color: var(--section-border);
+        .toggle-sidebar {
+            display: none;
+            position: fixed;
+            left: var(--spacing-md);
+            top: var(--spacing-md);
+            z-index: 1001;
         }
 
-        .ascii-art {
-            font-family: monospace;
-            white-space: pre;
-            margin-bottom: 20px;
-            overflow-x: auto;
+        @media (max-width: 768px) {
+            .toggle-sidebar {
+                display: block;
+            }
         }
 
-        .section-header {
-            border-top: 1px solid var(--section-border);
-            border-bottom: 1px solid var(--section-border);
-            padding: 10px 0;
-            margin: 20px 0;
-            font-weight: bold;
-        }
-
-        .subsection-header {
-            border-bottom: 1px dashed var(--section-border);
-            padding: 5px 0;
-            margin: 10px 0;
-        }
-
-        #search-box {
-            width: 100%;
-            padding: 8px;
-            margin-bottom: 10px;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            border: 1px solid var(--section-border);
-            border-radius: 4px;
-        }
-
-        .table {
-            border-left: 2px solid var(--section-border);
-            padding-left: 10px;
-            margin: 10px 0;
-        }
-
-        #content-wrapper {
-            flex-grow: 1;
-            height: 100vh;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .navigation {
-            position: sticky;
-            top: 0;
-            background-color: var(--bg-color);
-            padding: 10px 20px;
-            border-bottom: 1px solid var(--section-border);
-            display: flex;
-            justify-content: space-between;
-            z-index: 100;
-        }
-
-        .nav-title {
-            font-weight: bold;
-            flex-grow: 1;
-            text-align: center;
+        .section-anchor {
+            position: relative;
+            top: -50px;
+            visibility: hidden;
         }
     </style>
 </head>
 <body>
+    <button class="toggle-sidebar" id="toggleSidebar">☰</button>
     <div id="sidebar">
         <div class="controls">
             <button id="openFile">Open Walkthrough</button>
@@ -204,14 +299,18 @@
     </div>
     <div id="content-wrapper">
         <div class="navigation">
-            <button id="prevSection">&lt; Previous</button>
             <span class="nav-title"></span>
-            <button id="nextSection">Next &gt;</button>
+        </div>
+        <div class="search-controls">
+            <input type="text" id="content-search-box" placeholder="Search guide content...">
+            <button id="prevMatch">Previous</button>
+            <button id="nextMatch">Next</button>
+            <span class="search-count"></span>
         </div>
         <div id="content"></div>
     </div>
     <div class="theme-toggle">
-        <button id="themeToggle">Toggle Dark Mode</button>
+        <button id="themeToggle">🌓</button>
     </div>
 
     <script>
@@ -222,12 +321,11 @@
         const themeToggle = document.getElementById('themeToggle');
         const body = document.body;
         const searchBox = document.getElementById('search-box');
-        const prevButton = document.getElementById('prevSection');
-        const nextButton = document.getElementById('nextSection');
         const navTitle = document.querySelector('.nav-title');
         let currentWalkthrough = null;
-        let currentSectionIndex = 0;
         let sections = [];
+        let searchMatches = [];
+        let currentMatchIndex = -1;
 
         themeToggle.addEventListener('click', () => {
             isDarkMode = !isDarkMode;
@@ -246,20 +344,6 @@
                 const text = link.textContent.toLowerCase();
                 link.style.display = text.includes(searchTerm) ? 'block' : 'none';
             });
-        });
-
-        prevButton.addEventListener('click', () => {
-            if (currentSectionIndex > 0) {
-                currentSectionIndex--;
-                displaySection(sections[currentSectionIndex].title);
-            }
-        });
-
-        nextButton.addEventListener('click', () => {
-            if (currentSectionIndex < sections.length - 1) {
-                currentSectionIndex++;
-                displaySection(sections[currentSectionIndex].title);
-            }
         });
 
         document.getElementById('openFile').addEventListener('click', async () => {
@@ -287,162 +371,362 @@
             }
         });
 
+        document.getElementById('content-search-box').addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            if (searchTerm.length < 2) {
+                clearContentHighlights();
+                return;
+            }
+            searchInContent(searchTerm);
+        });
+
+        document.getElementById('prevMatch').addEventListener('click', () => {
+            if (searchMatches.length > 0) {
+                currentMatchIndex = (currentMatchIndex - 1 + searchMatches.length) % searchMatches.length;
+                highlightCurrentMatch();
+            }
+        });
+
+        document.getElementById('nextMatch').addEventListener('click', () => {
+            if (searchMatches.length > 0) {
+                currentMatchIndex = (currentMatchIndex + 1) % searchMatches.length;
+                highlightCurrentMatch();
+            }
+        });
+
         function buildTableOfContents(content) {
             const lines = content.split('\n');
             const toc = document.getElementById('toc');
             toc.innerHTML = '';
             sections = [];
 
-            // Common section patterns
-            const patterns = [
-                // Format: "Name | CODE | Description" with various code formats
-                /^[^|]*?([^|\n]+?)\s*\|\s*((?:G\d{4}|SM#\d{2}|[A-Z0-9#]{2,5}|\{\d+\}))\s*\|.*$/,
-                
-                // Format: "##.) Name | CODE | Description"
-                /^(?:\d+\.?\)?\s*)?([^|\n]+?)\s*\|\s*((?:G\d{4}|SM#\d{2}|[A-Z0-9#]{2,5}|\{\d+\}))\s*\|.*$/,
-                
-                // Format: "Section Name [CODE]"
-                /^(.*?)\s*\[((?:G\d{4}|SM#\d{2}|[A-Z0-9#]{2,5}|\{\d+\}))\]\s*$/,
-                
-                // Format: "01: Section Name [CODE]"
-                /^(?:\d+:?\s*)?([^[]+)\s*\[((?:G\d{4}|SM#\d{2}|[A-Z0-9#]{2,5}|\{\d+\}))\]\s*$/,
-                
-                // Format: "[CODE] Section Name"
-                /^\[((?:G\d{4}|SM#\d{2}|[A-Z0-9#]{2,5}|\{\d+\}))\]\s*(.+?)\s*$/,
-                
-                // Format: "Section Name (CODE)"
-                /^(.*?)\s*\(((?:G\d{4}|SM#\d{2}|[A-Z0-9#]{2,5}|\{\d+\}))\)\s*$/,
-                
-                // Format: "CODE - Section Name"
-                /^((?:G\d{4}|SM#\d{2}|[A-Z0-9#]{2,5}|\{\d+\}))\s*-\s*(.+?)\s*$/,
+            let currentSection = null;
+            let sectionContent = [];
+            let inTableOfContents = false;
+            let tocEndMarkers = 0;  // Count potential TOC end markers
 
-                // Format: "Section Name {N}"
-                /^(.*?)\s*(\{\d+\})\s*$/,
+            // Helper function to detect section codes
+            function detectSectionCode(line) {
+                const patterns = [
+                    // FF8 style with curly braces and subsections
+                    /\{([A-Z0-9][A-Z0-9\.-]*)\}/,  // Matches {WAL}, {C1.1}, {INF-1}, etc.
+                    // Dots/dashes followed by code
+                    /[.\-]{3,}\s*([A-Z0-9]{2,6})$/,
+                    // Bracketed code
+                    /\[([A-Z0-9]{2,6})\]/,
+                    // Parentheses code
+                    /\(([A-Z0-9]{2,6})\)/,
+                    // Code at start or end with separator
+                    /^([A-Z0-9]{2,6})[:\-\s]|[:\-\s]([A-Z0-9]{2,6})$/,
+                    // Code followed by dots/dashes
+                    /^([A-Z0-9]{2,6})[.\-]{3,}/,
+                    // Just the code by itself (last resort)
+                    /^([A-Z0-9]{2,6})$/
+                ];
 
-                // Format: "{N} Section Name"
-                /^(\{\d+\})\s*(.+?)\s*$/
-            ];
-
-            lines.forEach((line, index) => {
-                let match = null;
-                let title = null;
-                let code = null;
-
-                // Try each pattern until we find a match
                 for (const pattern of patterns) {
-                    match = line.match(pattern);
+                    const match = line.match(pattern);
                     if (match) {
-                        // If pattern has code first, swap the groups
-                        if (pattern.toString().includes('CODE - Section') || 
-                            pattern.toString().includes('[CODE] Section') ||
-                            pattern.toString().includes('{N} Section')) {
-                            code = match[1];
-                            title = match[2];
-                        } else {
-                            title = match[1];
-                            code = match[2];
-                        }
-                        break;
+                        // Return the first non-null capturing group
+                        return match.slice(1).find(group => group);
                     }
                 }
-
-                if (match && title && code) {
-                    title = title.trim();
-                    code = code.trim();
-                    
-                    // Skip if it's just a number or empty
-                    if (!/^\d+$/.test(title) && title !== '') {
-                        // Clean up the title (remove leading numbers and special chars)
-                        title = title.replace(/^\d+\.?\)?\s*/, '');
-                        
-                        sections.push({
-                            title: title,
-                            code: code,
-                            lineNumber: index
-                        });
-
-                        // Create TOC entry
-                        const link = document.createElement('a');
-                        link.href = '#';
-                        link.innerHTML = `${title} <span class="section-code">[${code}]</span>`;
-                        
-                        // Handle subsections based on code format or indentation
-                        const isSubsection = line.startsWith(' ') || 
-                                          line.startsWith('\t') || 
-                                          title.toLowerCase().includes('send mission') ||
-                                          code.startsWith('SM#') ||
-                                          (code.match(/\{\d+\}/) && index > 0); // Treat {N} as subsection if not first
-                        if (isSubsection) {
-                            link.classList.add('subsection');
-                        }
-                        
-                        link.onclick = (e) => {
-                            e.preventDefault();
-                            findAndScrollToSection(code);
-                            currentSectionIndex = sections.length - 1;
-                            navTitle.textContent = title;
-                        };
-                        toc.appendChild(link);
-                    }
-                }
-            });
-        }
-
-        function findAndScrollToSection(code) {
-            const contentDiv = document.getElementById('content');
-            const text = contentDiv.textContent;
-            let position = -1;
-            
-            // Try different formats for the code
-            const formats = [
-                `[${code}]`,    // [CODE]
-                `| ${code} |`,  // | CODE |
-                `|${code}|`,    // |CODE|
-                ` ${code} `,    // Space-padded
-                `${code}\t`,    // Tab-padded
-                code,           // Raw code
-                `{${code.replace(/[{}]/g, '')}}` // Handle {N} format
-            ];
-            
-            for (const format of formats) {
-                position = text.indexOf(format);
-                if (position !== -1) break;
+                return null;
             }
-            
-            if (position !== -1) {
-                // Count newlines up to the position to find the line number
-                const textBefore = text.substring(0, position);
-                const lines = textBefore.split('\n');
-                const lineHeight = parseInt(window.getComputedStyle(contentDiv).lineHeight);
-                const scrollPosition = lines.length * lineHeight;
+
+            // Helper function to detect TOC markers
+            function isTocMarker(line) {
+                const upperLine = line.toUpperCase();
+                return upperLine.includes('TABLE OF CONTENTS') || 
+                       upperLine === 'CONTENTS' ||
+                       upperLine.match(/^[-=]{3,}\s*CONTENTS\s*[-=]{3,}$/) ||
+                       upperLine.includes('Oo*=-*=-*=-*=-*=-*=-*=-*=-*=-*=-*=-*=-*=-*=-*=-*=-*=-*=-*=-*=-*=-*=-*=-*=-*Oo') ||
+                       upperLine.match(/^[-=*]{3,}$/);  // Section separator lines
+            }
+
+            // Helper function to detect TOC end
+            function isTocEnd(line) {
+                return line.match(/^[IVX]+\.\s+[A-Z]/) ||  // Roman numerals
+                       line.match(/^={3,}$/) ||            // Separator line
+                       line.match(/^[-]{3,}$/) ||          // Separator line
+                       line.match(/^[*]{3,}$/) ||          // Separator line
+                       line.match(/^\s*={3,}\s*$/) ||      // Centered separator
+                       line.match(/^[A-Z\s]{20,}$/);       // All caps section
+            }
+
+            // Helper function to determine section level
+            function getSectionLevel(line) {
+                if (line.match(/^[IVX]+\./)) return 0;  // Main section with Roman numerals
+                if (line.match(/^\s*\{[A-Z0-9]+\}/)) return 1;  // First level subsection
+                if (line.match(/^\s*\{[A-Z0-9]+\.[0-9]+/)) return 2;  // Second level subsection
+                if (line.match(/^\s*\{[A-Z0-9]+-[0-9]+/)) return 2;  // Alternative second level
+                const indentLevel = line.search(/\S/);
+                return indentLevel > 0 ? Math.floor(indentLevel / 2) + 1 : 0;
+            }
+
+            // Helper function to clean up title
+            function cleanTitle(line) {
+                return line
+                    .replace(/\{[A-Z0-9][A-Z0-9\.-]*\}/g, '')  // Remove curly brace codes with dots/dashes
+                    .replace(/\[.*?\]/g, '')                // Remove bracketed content
+                    .replace(/\(.*?\)/g, '')                // Remove parenthetical content
+                    .replace(/\.{3,}.*$|-{3,}.*$/, '')     // Remove dots/dashes and anything after
+                    .replace(/^\s*[IVX0-9]+[\.\)]\s*/, '') // Remove Roman numerals and numbers
+                    .replace(/^\s*[-*+•]?\s*/, '')         // Remove bullets
+                    .replace(/\s*[:=]\s*$/, '')            // Remove trailing colons and equals
+                    .replace(/^[-=\s]+/, '')               // Remove leading separators
+                    .replace(/[-=\s]+$/, '')               // Remove trailing separators
+                    .trim();
+            }
+
+            // Process each line
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i].trimEnd();  // Keep leading spaces but trim end
                 
-                // Scroll to the calculated position
-                contentDiv.scrollTop = Math.max(0, scrollPosition - 50); // -50 for some padding at the top
+                // Skip empty lines
+                if (!line) continue;
+
+                // Skip pure separator lines unless they're TOC markers
+                if (/^[-=_\s*♦]+$/.test(line) && !isTocMarker(line)) continue;
+
+                // Check for table of contents start
+                if (!inTableOfContents && isTocMarker(line)) {
+                    inTableOfContents = true;
+                    tocEndMarkers = 0;
+                    continue;
+                }
+
+                // Skip if we haven't reached TOC yet
+                if (!inTableOfContents) continue;
+
+                // Check for potential TOC end
+                if (isTocEnd(line)) {
+                    tocEndMarkers++;
+                    // If we've seen multiple end markers, assume we're out of the TOC
+                    if (tocEndMarkers >= 2) {
+                        inTableOfContents = false;
+                    }
+                    continue;
+                }
+
+                if (inTableOfContents) {
+                    // Skip decorative lines
+                    if (/^[^a-zA-Z0-9]*$/.test(line)) continue;
+
+                    const code = detectSectionCode(line);
+                    if (code) {
+                        const title = cleanTitle(line);
+                        const level = getSectionLevel(line);
+                        
+                        // Don't add duplicate sections
+                        if (currentSection?.title !== title) {
+                            if (currentSection) {
+                                sections.push({
+                                    title: currentSection.title,
+                                    code: currentSection.code,
+                                    level: currentSection.level,
+                                    content: sectionContent.join('\n')
+                                });
+                                sectionContent = [];
+                            }
+
+                            currentSection = { title, code, level };
+
+                            // Create TOC entry
+                            const link = document.createElement('a');
+                            link.href = '#';
+                            link.innerHTML = `${title} <span class="section-code">[${code}]</span>`;
+                            
+                            // Add appropriate indentation based on level
+                            if (level > 0) {
+                                link.classList.add('subsection');
+                                link.style.paddingLeft = `${level * 20}px`;
+                            }
+                            
+                            link.onclick = (e) => {
+                                e.preventDefault();
+                                displaySection(title, code);
+                            };
+                            toc.appendChild(link);
+                        }
+                    }
+                } else if (currentSection) {
+                    sectionContent.push(line);
+                }
+            }
+
+            // Add the last section
+            if (currentSection) {
+                sections.push({
+                    title: currentSection.title,
+                    code: currentSection.code,
+                    level: currentSection.level,
+                    content: sectionContent.join('\n')
+                });
             }
         }
 
-        function displaySection(sectionTitle) {
+        function displaySection(sectionTitle, sectionCode) {
             const section = sections.find(s => s.title === sectionTitle);
-            if (section) {
+            if (section && currentWalkthrough) {
                 const contentDiv = document.getElementById('content');
-                contentDiv.innerHTML = '';
-                if (section.code === 'ASCII') {
-                    contentDiv.innerHTML = `<div class="ascii-art">${section.content}</div>`;
-                } else {
-                    if (section.level > 0) {
-                        contentDiv.innerHTML = `<div class="subsection-header">${section.title} [${section.code}]</div>`;
-                    } else {
-                        contentDiv.innerHTML = `<div class="section-header">${section.title} [${section.code}]</div>`;
-                    }
-                    contentDiv.innerHTML += `<div>${section.content}</div>`;
-                }
-                navTitle.textContent = section.title;
                 
-                // Update navigation buttons
-                prevButton.disabled = currentSectionIndex === 0;
-                nextButton.disabled = currentSectionIndex === sections.length - 1;
+                // Display the entire walkthrough if it's not already displayed
+                if (contentDiv.textContent !== currentWalkthrough) {
+                    contentDiv.textContent = currentWalkthrough;
+                }
+                
+                navTitle.textContent = section.title;
+
+                // Use the search function to find and highlight the section
+                const searchBox = document.getElementById('content-search-box');
+                
+                // Clear any existing search
+                searchBox.value = '';
+                clearContentHighlights();
+                
+                // Always search for the section code
+                if (sectionCode) {
+                    searchBox.value = sectionCode;
+                    searchInContent(sectionCode);
+                }
             }
         }
+
+        function searchInContent(searchTerm) {
+            const contentDiv = document.getElementById('content');
+            const content = contentDiv.textContent;
+            let matches = [];
+
+            // Reset content
+            clearContentHighlights();
+
+            // For section codes, find matches by line
+            if (searchTerm.match(/^[A-Z0-9]{2,6}$/)) {
+                const lines = content.split('\n');
+                let currentIndex = 0;
+                
+                lines.forEach(line => {
+                    // Find all instances of the code in this line
+                    let lineMatch = line.indexOf(searchTerm);
+                    while (lineMatch !== -1) {
+                        // Check if the code is properly formatted (with dots/dashes before or brackets)
+                        const beforeCode = line.substring(0, lineMatch);
+                        const isValidMatch = 
+                            /[.\-]{3,}\s*$/.test(beforeCode) ||     // Dots/dashes before code
+                            line.substr(lineMatch - 1, 1) === '[' || // Code in brackets
+                            line.substr(lineMatch + searchTerm.length, 1) === ']';
+
+                        if (isValidMatch) {
+                            matches.push({
+                                index: currentIndex + lineMatch,
+                                length: searchTerm.length,
+                                line: line.trim()
+                            });
+                        }
+                        lineMatch = line.indexOf(searchTerm, lineMatch + 1);
+                    }
+                    currentIndex += line.length + 1;
+                });
+
+                // Select appropriate match based on count
+                if (matches.length === 4) {
+                    currentMatchIndex = 2;  // Use third match for 4 matches
+                } else if (matches.length >= 2) {
+                    currentMatchIndex = 1;  // Use second match for 2+ matches
+                } else if (matches.length === 1) {
+                    currentMatchIndex = 0;  // Use only match
+                }
+            } else {
+                // For regular searches, find all matches
+                const regex = new RegExp(searchTerm, 'gi');
+                let match;
+                while ((match = regex.exec(content)) !== null) {
+                    matches.push({
+                        index: match.index,
+                        length: match[0].length
+                    });
+                }
+                currentMatchIndex = matches.length > 0 ? 0 : -1;
+            }
+
+            searchMatches = matches;
+
+            // Apply highlights
+            if (searchMatches.length > 0) {
+                let result = '';
+                let lastIndex = 0;
+
+                searchMatches.forEach(match => {
+                    result += content.substring(lastIndex, match.index);
+                    result += `<mark class="search-result">${content.substr(match.index, match.length)}</mark>`;
+                    lastIndex = match.index + match.length;
+                });
+
+                result += content.substring(lastIndex);
+                contentDiv.innerHTML = result;
+                highlightCurrentMatch();
+            } else {
+                contentDiv.textContent = content;
+            }
+
+            updateSearchCount();
+        }
+
+        function clearContentHighlights() {
+            const contentDiv = document.getElementById('content');
+            // Simply restore the original text content
+            if (currentWalkthrough) {
+                contentDiv.textContent = currentWalkthrough;
+            }
+            searchMatches = [];
+            currentMatchIndex = -1;
+            updateSearchCount();
+        }
+
+        function highlightCurrentMatch() {
+            if (searchMatches.length === 0) return;
+
+            const marks = document.querySelectorAll('.search-result');
+            marks.forEach(mark => mark.classList.remove('current'));
+
+            const currentMark = marks[currentMatchIndex];
+            if (currentMark) {
+                currentMark.classList.add('current');
+                currentMark.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'center'
+                });
+            }
+
+            updateSearchCount();
+        }
+
+        function updateSearchCount() {
+            const countElement = document.querySelector('.search-count');
+            if (searchMatches.length > 0) {
+                countElement.textContent = `${currentMatchIndex + 1} of ${searchMatches.length} matches`;
+            } else {
+                countElement.textContent = 'No matches';
+            }
+        }
+
+        // Add mobile sidebar toggle functionality
+        document.getElementById('toggleSidebar').addEventListener('click', () => {
+            document.getElementById('sidebar').classList.toggle('active');
+        });
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', (e) => {
+            const sidebar = document.getElementById('sidebar');
+            const toggleBtn = document.getElementById('toggleSidebar');
+            if (window.innerWidth <= 768 && 
+                !sidebar.contains(e.target) && 
+                !toggleBtn.contains(e.target) &&
+                sidebar.classList.contains('active')) {
+                sidebar.classList.remove('active');
+            }
+        });
     </script>
 </body>
 </html> 
