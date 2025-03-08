@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Game Walkthrough Viewer</title>
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #000000;
+            --sidebar-bg: #f0f0f0;
+            --hover-color: #e0e0e0;
+            --code-bg: #f8f8f8;
+            --section-border: #cccccc;
+            --subsection-bg: #f5f5f5;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #1a1a1a;
+            --text-color: #ffffff;
+            --sidebar-bg: #2d2d2d;
+            --hover-color: #3d3d3d;
+            --code-bg: #2a2a2a;
+            --section-border: #404040;
+            --subsection-bg: #2a2a2a;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Courier New', Courier, monospace;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            transition: all 0.3s ease;
+            line-height: 1.2;
+        }
+
+        #sidebar {
+            width: 300px;
+            height: 100vh;
+            background-color: var(--sidebar-bg);
+            padding: 20px;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
+        #content {
+            flex-grow: 1;
+            padding: 20px;
+            height: 100vh;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        .controls {
+            margin-bottom: 20px;
+            position: sticky;
+            top: 0;
+            background-color: var(--sidebar-bg);
+            padding: 10px 0;
+            z-index: 100;
+        }
+
+        button {
+            padding: 8px 16px;
+            margin: 5px;
+            cursor: pointer;
+            background-color: var(--hover-color);
+            border: 1px solid var(--section-border);
+            color: var(--text-color);
+            border-radius: 4px;
+        }
+
+        button:hover {
+            background-color: var(--section-border);
+        }
+
+        #toc {
+            padding-bottom: 20px;
+        }
+
+        #toc a {
+            display: block;
+            padding: 8px;
+            color: var(--text-color);
+            text-decoration: none;
+            margin: 2px 0;
+            font-size: 14px;
+            border-radius: 4px;
+        }
+
+        #toc .section-code {
+            color: #888;
+            font-size: 12px;
+            margin-left: 8px;
+        }
+
+        #toc .subsection {
+            margin-left: 20px;
+            font-size: 13px;
+            background-color: var(--subsection-bg);
+        }
+
+        #toc a:hover {
+            background-color: var(--hover-color);
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background-color: var(--bg-color);
+            padding: 5px;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .theme-toggle button {
+            background-color: var(--hover-color);
+            color: var(--text-color);
+            border: 1px solid var(--section-border);
+            padding: 8px 16px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .theme-toggle button:hover {
+            background-color: var(--section-border);
+        }
+
+        .ascii-art {
+            font-family: monospace;
+            white-space: pre;
+            margin-bottom: 20px;
+            overflow-x: auto;
+        }
+
+        .section-header {
+            border-top: 1px solid var(--section-border);
+            border-bottom: 1px solid var(--section-border);
+            padding: 10px 0;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+
+        .subsection-header {
+            border-bottom: 1px dashed var(--section-border);
+            padding: 5px 0;
+            margin: 10px 0;
+        }
+
+        #search-box {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            border: 1px solid var(--section-border);
+            border-radius: 4px;
+        }
+
+        .table {
+            border-left: 2px solid var(--section-border);
+            padding-left: 10px;
+            margin: 10px 0;
+        }
+
+        #content-wrapper {
+            flex-grow: 1;
+            height: 100vh;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .navigation {
+            position: sticky;
+            top: 0;
+            background-color: var(--bg-color);
+            padding: 10px 20px;
+            border-bottom: 1px solid var(--section-border);
+            display: flex;
+            justify-content: space-between;
+            z-index: 100;
+        }
+
+        .nav-title {
+            font-weight: bold;
+            flex-grow: 1;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="sidebar">
+        <div class="controls">
+            <button id="openFile">Open Walkthrough</button>
+            <input type="text" id="url-box" placeholder="Enter GameFAQs URL...">
+            <button id="loadUrl">Load URL</button>
+            <input type="text" id="search-box" placeholder="Search sections...">
+        </div>
+        <div id="toc"></div>
+    </div>
+    <div id="content-wrapper">
+        <div class="navigation">
+            <button id="prevSection">&lt; Previous</button>
+            <span class="nav-title"></span>
+            <button id="nextSection">Next &gt;</button>
+        </div>
+        <div id="content"></div>
+    </div>
+    <div class="theme-toggle">
+        <button id="themeToggle">Toggle Dark Mode</button>
+    </div>
+
+    <script>
+        const { ipcRenderer } = require('electron');
+        const marked = require('marked');
+
+        let isDarkMode = false;
+        const themeToggle = document.getElementById('themeToggle');
+        const body = document.body;
+        const searchBox = document.getElementById('search-box');
+        const prevButton = document.getElementById('prevSection');
+        const nextButton = document.getElementById('nextSection');
+        const navTitle = document.querySelector('.nav-title');
+        let currentWalkthrough = null;
+        let currentSectionIndex = 0;
+        let sections = [];
+
+        themeToggle.addEventListener('click', () => {
+            isDarkMode = !isDarkMode;
+            body.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
+            localStorage.setItem('darkMode', isDarkMode);
+        });
+
+        // Load saved theme preference
+        isDarkMode = localStorage.getItem('darkMode') === 'true';
+        body.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
+
+        searchBox.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const links = document.querySelectorAll('#toc a');
+            links.forEach(link => {
+                const text = link.textContent.toLowerCase();
+                link.style.display = text.includes(searchTerm) ? 'block' : 'none';
+            });
+        });
+
+        prevButton.addEventListener('click', () => {
+            if (currentSectionIndex > 0) {
+                currentSectionIndex--;
+                displaySection(sections[currentSectionIndex].title);
+            }
+        });
+
+        nextButton.addEventListener('click', () => {
+            if (currentSectionIndex < sections.length - 1) {
+                currentSectionIndex++;
+                displaySection(sections[currentSectionIndex].title);
+            }
+        });
+
+        document.getElementById('openFile').addEventListener('click', async () => {
+            const content = await ipcRenderer.invoke('open-file');
+            if (content) {
+                currentWalkthrough = content;
+                document.getElementById('content').textContent = content;
+                buildTableOfContents(content);
+            }
+        });
+
+        document.getElementById('loadUrl').addEventListener('click', async () => {
+            const url = document.getElementById('url-box').value;
+            if (url) {
+                try {
+                    const content = await ipcRenderer.invoke('load-url', url);
+                    if (content) {
+                        currentWalkthrough = content;
+                        document.getElementById('content').textContent = content;
+                        buildTableOfContents(content);
+                    }
+                } catch (error) {
+                    console.error('Error loading URL:', error);
+                }
+            }
+        });
+
+        function buildTableOfContents(content) {
+            const lines = content.split('\n');
+            const toc = document.getElementById('toc');
+            toc.innerHTML = '';
+            sections = [];
+
+            // Common section patterns
+            const patterns = [
+                // Format: "Name | CODE | Description" with various code formats
+                /^[^|]*?([^|\n]+?)\s*\|\s*((?:G\d{4}|SM#\d{2}|[A-Z0-9#]{2,5}|\{\d+\}))\s*\|.*$/,
+                
+                // Format: "##.) Name | CODE | Description"
+                /^(?:\d+\.?\)?\s*)?([^|\n]+?)\s*\|\s*((?:G\d{4}|SM#\d{2}|[A-Z0-9#]{2,5}|\{\d+\}))\s*\|.*$/,
+                
+                // Format: "Section Name [CODE]"
+                /^(.*?)\s*\[((?:G\d{4}|SM#\d{2}|[A-Z0-9#]{2,5}|\{\d+\}))\]\s*$/,
+                
+                // Format: "01: Section Name [CODE]"
+                /^(?:\d+:?\s*)?([^[]+)\s*\[((?:G\d{4}|SM#\d{2}|[A-Z0-9#]{2,5}|\{\d+\}))\]\s*$/,
+                
+                // Format: "[CODE] Section Name"
+                /^\[((?:G\d{4}|SM#\d{2}|[A-Z0-9#]{2,5}|\{\d+\}))\]\s*(.+?)\s*$/,
+                
+                // Format: "Section Name (CODE)"
+                /^(.*?)\s*\(((?:G\d{4}|SM#\d{2}|[A-Z0-9#]{2,5}|\{\d+\}))\)\s*$/,
+                
+                // Format: "CODE - Section Name"
+                /^((?:G\d{4}|SM#\d{2}|[A-Z0-9#]{2,5}|\{\d+\}))\s*-\s*(.+?)\s*$/,
+
+                // Format: "Section Name {N}"
+                /^(.*?)\s*(\{\d+\})\s*$/,
+
+                // Format: "{N} Section Name"
+                /^(\{\d+\})\s*(.+?)\s*$/
+            ];
+
+            lines.forEach((line, index) => {
+                let match = null;
+                let title = null;
+                let code = null;
+
+                // Try each pattern until we find a match
+                for (const pattern of patterns) {
+                    match = line.match(pattern);
+                    if (match) {
+                        // If pattern has code first, swap the groups
+                        if (pattern.toString().includes('CODE - Section') || 
+                            pattern.toString().includes('[CODE] Section') ||
+                            pattern.toString().includes('{N} Section')) {
+                            code = match[1];
+                            title = match[2];
+                        } else {
+                            title = match[1];
+                            code = match[2];
+                        }
+                        break;
+                    }
+                }
+
+                if (match && title && code) {
+                    title = title.trim();
+                    code = code.trim();
+                    
+                    // Skip if it's just a number or empty
+                    if (!/^\d+$/.test(title) && title !== '') {
+                        // Clean up the title (remove leading numbers and special chars)
+                        title = title.replace(/^\d+\.?\)?\s*/, '');
+                        
+                        sections.push({
+                            title: title,
+                            code: code,
+                            lineNumber: index
+                        });
+
+                        // Create TOC entry
+                        const link = document.createElement('a');
+                        link.href = '#';
+                        link.innerHTML = `${title} <span class="section-code">[${code}]</span>`;
+                        
+                        // Handle subsections based on code format or indentation
+                        const isSubsection = line.startsWith(' ') || 
+                                          line.startsWith('\t') || 
+                                          title.toLowerCase().includes('send mission') ||
+                                          code.startsWith('SM#') ||
+                                          (code.match(/\{\d+\}/) && index > 0); // Treat {N} as subsection if not first
+                        if (isSubsection) {
+                            link.classList.add('subsection');
+                        }
+                        
+                        link.onclick = (e) => {
+                            e.preventDefault();
+                            findAndScrollToSection(code);
+                            currentSectionIndex = sections.length - 1;
+                            navTitle.textContent = title;
+                        };
+                        toc.appendChild(link);
+                    }
+                }
+            });
+        }
+
+        function findAndScrollToSection(code) {
+            const contentDiv = document.getElementById('content');
+            const text = contentDiv.textContent;
+            let position = -1;
+            
+            // Try different formats for the code
+            const formats = [
+                `[${code}]`,    // [CODE]
+                `| ${code} |`,  // | CODE |
+                `|${code}|`,    // |CODE|
+                ` ${code} `,    // Space-padded
+                `${code}\t`,    // Tab-padded
+                code,           // Raw code
+                `{${code.replace(/[{}]/g, '')}}` // Handle {N} format
+            ];
+            
+            for (const format of formats) {
+                position = text.indexOf(format);
+                if (position !== -1) break;
+            }
+            
+            if (position !== -1) {
+                // Count newlines up to the position to find the line number
+                const textBefore = text.substring(0, position);
+                const lines = textBefore.split('\n');
+                const lineHeight = parseInt(window.getComputedStyle(contentDiv).lineHeight);
+                const scrollPosition = lines.length * lineHeight;
+                
+                // Scroll to the calculated position
+                contentDiv.scrollTop = Math.max(0, scrollPosition - 50); // -50 for some padding at the top
+            }
+        }
+
+        function displaySection(sectionTitle) {
+            const section = sections.find(s => s.title === sectionTitle);
+            if (section) {
+                const contentDiv = document.getElementById('content');
+                contentDiv.innerHTML = '';
+                if (section.code === 'ASCII') {
+                    contentDiv.innerHTML = `<div class="ascii-art">${section.content}</div>`;
+                } else {
+                    if (section.level > 0) {
+                        contentDiv.innerHTML = `<div class="subsection-header">${section.title} [${section.code}]</div>`;
+                    } else {
+                        contentDiv.innerHTML = `<div class="section-header">${section.title} [${section.code}]</div>`;
+                    }
+                    contentDiv.innerHTML += `<div>${section.content}</div>`;
+                }
+                navTitle.textContent = section.title;
+                
+                // Update navigation buttons
+                prevButton.disabled = currentSectionIndex === 0;
+                nextButton.disabled = currentSectionIndex === sections.length - 1;
+            }
+        }
+    </script>
+</body>
+</html> 
