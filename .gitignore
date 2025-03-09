@@ -7,6 +7,10 @@ gamefaqs.gamespot.com.txt.faqs.5.gen/**/*
 gamefaqs.gamespot.com.txt.faqs.5.gen/**/*.htm
 gamefaqs.gamespot.com.txt.faqs.5.gen/**/*.html
 
+#Specstory content
+.specstory/
+.specstory/**/*
+
 # Dependencies
 package-lock.json
 
