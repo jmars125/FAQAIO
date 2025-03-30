@@ -110,53 +110,62 @@ ipcMain.handle('load-url', async (event, url) => {
       }
     };
 
-    const content = await new Promise((resolve, reject) => {
-      https.get(url, options, (res) => {
-        if (res.statusCode === 301 || res.statusCode === 302) {
-          https.get(res.headers.location, options, (redirectRes) => {
-            let data = '';
-            redirectRes.on('data', chunk => data += chunk);
-            redirectRes.on('end', () => {
-              try {
-                const rawContent = extractPreContent(data);
-                if (rawContent) {
-                  const tempFile = path.join(app.getPath('temp'), 'faq_content.txt');
-                  fs.writeFileSync(tempFile, rawContent, 'utf8');
-                  resolve(tempFile);
-                } else {
-                  reject(new Error('Could not find FAQ content. Make sure this is a valid GameFAQs FAQ page.'));
-                }
-              } catch (e) {
-                reject(e);
-              }
-            });
-          }).on('error', reject);
-          return;
-        }
-
-        let data = '';
-        res.on('data', chunk => data += chunk);
-        res.on('end', () => {
-          try {
-            const rawContent = extractPreContent(data);
-            if (rawContent) {
-              const tempFile = path.join(app.getPath('temp'), 'faq_content.txt');
-              fs.writeFileSync(tempFile, rawContent, 'utf8');
-              resolve(tempFile);
-            } else {
-              reject(new Error('Could not find FAQ content. Make sure this is a valid GameFAQs FAQ page.'));
-            }
-          } catch (e) {
-            reject(e);
+    const fetchedContent = await new Promise((resolve, reject) => {
+      const requestUrl = new URL(url); // Use URL object for easier handling
+      const getRequest = (currentUrl, currentOptions, callback) => {
+        https.get(currentUrl, currentOptions, (res) => {
+          // Handle redirects
+          if ((res.statusCode === 301 || res.statusCode === 302) && res.headers.location) {
+            console.log(`Redirecting to: ${res.headers.location}`);
+            // Ensure the location is a full URL
+            const redirectUrl = new URL(res.headers.location, currentUrl.origin);
+            getRequest(redirectUrl, currentOptions, callback); // Follow redirect recursively
+            return;
           }
-        });
-      }).on('error', reject);
+
+          // Check for non-200 status codes
+          if (res.statusCode !== 200) {
+            reject(new Error(`HTTP Error: ${res.statusCode} ${res.statusMessage}`));
+            return;
+          }
+
+          const contentType = res.headers['content-type'] || '';
+          let data = '';
+          res.setEncoding('utf8'); // Ensure correct encoding
+          res.on('data', chunk => data += chunk);
+          res.on('end', () => {
+            try {
+              let faqContent = null;
+              if (contentType.includes('text/plain')) {
+                console.log('Detected text/plain content.');
+                faqContent = data; // Use raw data for plain text
+              } else if (contentType.includes('text/html')) {
+                console.log('Detected text/html content. Extracting <pre> tags.');
+                faqContent = extractPreContent(data); // Try extracting from <pre> for HTML
+              } else {
+                 console.log(`Unexpected Content-Type: ${contentType}. Attempting <pre> extraction as fallback.`);
+                 faqContent = extractPreContent(data); // Fallback for unknown types
+              }
+
+              if (faqContent && faqContent.trim()) {
+                resolve(faqContent); // Resolve directly with the content string
+              } else {
+                reject(new Error('Could not find readable FAQ content in the page.'));
+              }
+            } catch (e) {
+              reject(e);
+            }
+          });
+        }).on('error', reject);
+      };
+
+      getRequest(requestUrl, options, resolve); // Initial request
     });
 
-    // Read the content from the temp file
-    return fs.readFileSync(content, 'utf8');
+    return fetchedContent; // Return the fetched content string directly
   } catch (error) {
     console.error('Error loading URL:', error);
-    return `Error loading FAQ: ${error.message}. Please make sure this is a valid GameFAQs FAQ page.`;
+    // Use a more generic error message
+    return `Error loading FAQ: ${error.message}. Please check the URL and ensure it points to a readable FAQ.`;
   }
-}); 
+});

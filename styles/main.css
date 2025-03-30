@@ -1,0 +1,438 @@
+/* === Modern Theme for FAQAIO === */
+
+/* --- Base Variables & Light Theme --- */
+:root {
+    /* Colors */
+    --bg-color: #ffffff;
+    --text-color: #212529;
+    --text-muted: #6c757d;
+    --border-color: #dee2e6;
+    --accent-color: #0d6efd;
+    --accent-hover: #0b5ed7;
+    --accent-text: #ffffff;
+    --surface-1: #f8f9fa; /* Sidebar, controls background */
+    --surface-2: #e9ecef; /* Hover states, input background */
+    --surface-3: #ced4da; /* Borders on inputs/buttons */
+    --code-bg: #f1f3f5;
+    --search-highlight-bg: rgba(255, 229, 100, 0.5); /* Yellowish */
+    --search-highlight-current-bg: rgba(255, 193, 7, 0.6); /* Stronger Yellow */
+
+    /* Typography */
+    --font-family-sans-serif: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    --font-family-monospace: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    --font-size-base: 1rem; /* 16px */
+    --font-size-sm: 0.875rem; /* 14px */
+    --font-size-lg: 1.25rem; /* 20px */
+    --line-height-base: 1.6;
+
+    /* Spacing */
+    --spacing-xs: 0.25rem; /* 4px */
+    --spacing-sm: 0.5rem;  /* 8px */
+    --spacing-md: 1rem;    /* 16px */
+    --spacing-lg: 1.5rem;  /* 24px */
+    --spacing-xl: 2rem;    /* 32px */
+
+    /* Borders & Radius */
+    --border-width: 1px;
+    --radius-sm: 0.25rem; /* 4px */
+    --radius-md: 0.375rem; /* 6px */
+    --radius-lg: 0.5rem;  /* 8px */
+
+    /* Transitions */
+    --transition-speed: 0.15s;
+    --transition-func: ease-in-out;
+    --transition-base: all var(--transition-speed) var(--transition-func);
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* --- Dark Theme Overrides --- */
+/* [data-theme="dark"] block removed as theming is now handled by JS setting root variables */
+
+/* --- Global Styles --- */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    font-size: 16px; /* Base font size */
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: var(--font-family-sans-serif);
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-base);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+    transition: background-color var(--transition-speed) var(--transition-func),
+                color var(--transition-speed) var(--transition-func);
+}
+
+/* --- Layout Components --- */
+#sidebar {
+    width: 300px;
+    flex-shrink: 0;
+    height: 100vh;
+    background-color: var(--surface-1);
+    border-right: var(--border-width) solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    transition: var(--transition-base);
+}
+
+#content-wrapper {
+    flex: 1;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* --- Sidebar Controls --- */
+.controls {
+    padding: var(--spacing-md);
+    border-bottom: var(--border-width) solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    position: sticky; /* Keep controls visible */
+    top: 0;
+    background-color: var(--surface-1); /* Match sidebar */
+    z-index: 10;
+    transition: var(--transition-base);
+}
+
+/* --- Table of Contents (TOC) --- */
+#toc {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--spacing-sm) var(--spacing-md); /* Less top/bottom padding */
+}
+
+#toc a {
+    display: block;
+    padding: var(--spacing-xs) var(--spacing-sm); /* Tighter padding */
+    color: var(--text-muted); /* Muted by default */
+    text-decoration: none;
+    border-radius: var(--radius-sm);
+    margin: 1px 0;
+    transition: var(--transition-base);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: var(--font-size-sm);
+}
+
+#toc a:hover {
+    background-color: var(--surface-2);
+    color: var(--text-color); /* Darken text on hover */
+}
+
+#toc a.active { /* Style for the currently active TOC link (JS needs to add this class) */
+    background-color: var(--accent-color);
+    color: var(--accent-text);
+    font-weight: 500;
+}
+
+/* --- Main Content Area --- */
+.navigation {
+    padding: var(--spacing-sm) var(--spacing-md);
+    background-color: var(--surface-1);
+    border-bottom: var(--border-width) solid var(--border-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    height: 56px; /* Fixed height */
+    transition: var(--transition-base);
+}
+
+.nav-title {
+    font-weight: 600;
+    font-size: var(--font-size-base);
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text-color);
+}
+
+.search-controls {
+    padding: var(--spacing-sm) var(--spacing-md);
+    background-color: var(--surface-1);
+    border-bottom: var(--border-width) solid var(--border-color);
+    display: grid;
+    grid-template-columns: 1fr auto auto auto;
+    gap: var(--spacing-sm);
+    align-items: center;
+    position: sticky;
+    top: 56px; /* Below navigation */
+    z-index: 9; /* Below navigation */
+    transition: var(--transition-base);
+}
+
+.search-count {
+    font-size: var(--font-size-sm);
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+
+#content {
+    flex: 1;
+    padding: var(--spacing-lg);
+    overflow-y: auto;
+    font-family: var(--font-family-sans-serif); /* Use sans-serif for content */
+    line-height: var(--line-height-base);
+    white-space: pre-wrap; /* Preserve whitespace */
+    color: var(--text-color);
+}
+
+/* --- Content Formatting --- */
+/* Basic styles for potential headers/sections if they were HTML */
+#content h1, #content h2, #content h3, #content h4 {
+    font-family: var(--font-family-sans-serif);
+    margin-top: var(--spacing-lg);
+    margin-bottom: var(--spacing-md);
+    font-weight: 600;
+    line-height: 1.3;
+}
+#content h1 { font-size: 1.75rem; }
+#content h2 { font-size: 1.5rem; }
+#content h3 { font-size: 1.25rem; }
+#content h4 { font-size: 1.1rem; }
+
+#content p {
+    margin-bottom: var(--spacing-md);
+}
+
+#content pre, #content code {
+    font-family: var(--font-family-monospace);
+    background-color: var(--code-bg);
+    border-radius: var(--radius-sm);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: var(--font-size-sm);
+    color: var(--text-color); /* Ensure readability */
+}
+
+#content pre {
+    padding: var(--spacing-md);
+    overflow-x: auto;
+    margin-bottom: var(--spacing-md);
+}
+
+/* Styles for the dynamically added headers from plain text */
+.section-header {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    padding-bottom: var(--spacing-sm);
+    border-bottom: var(--border-width) solid var(--border-color);
+    margin-top: var(--spacing-xl);
+    margin-bottom: var(--spacing-lg);
+    font-family: var(--font-family-sans-serif);
+}
+
+.subsection-header {
+    font-size: 1.15rem; /* Slightly smaller than section */
+    font-weight: 600;
+    padding-bottom: var(--spacing-xs);
+    border-bottom: var(--border-width) dashed var(--border-color);
+    margin-top: var(--spacing-lg);
+    margin-bottom: var(--spacing-md);
+    font-family: var(--font-family-sans-serif);
+    color: var(--text-muted);
+}
+
+/* --- Form Elements --- */
+button {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: var(--border-width) solid transparent;
+    background-color: var(--accent-color);
+    color: var(--accent-text);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    transition: var(--transition-base);
+    text-align: center;
+}
+
+button:hover:not(:disabled) {
+    background-color: var(--accent-hover);
+    border-color: transparent;
+}
+
+button:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+input[type="text"] {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: var(--border-width) solid var(--surface-3);
+    border-radius: var(--radius-md);
+    background-color: var(--surface-2);
+    color: var(--text-color);
+    font-size: var(--font-size-sm);
+    width: 100%;
+    transition: var(--transition-base);
+}
+
+input[type="text"]:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(var(--accent-color), 0.25); /* Focus ring */
+    background-color: var(--bg-color); /* Match body background on focus */
+}
+
+select {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: var(--border-width) solid var(--surface-3);
+    background-color: var(--surface-2);
+    color: var(--text-color);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    transition: var(--transition-base);
+    appearance: none; /* Remove default arrow */
+    /* Use a static color for the SVG arrow fill */
+    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22 width%3D%22292.4%22 height%3D%22292.4%22%3E%3Cpath fill%3D%22%236c757d%22 d%3D%22M287 69.4a17.6 17.6 0 0 0-13-5.4H18.4c-5 0-9.3 1.8-12.9 5.4A17.6 17.6 0 0 0 0 82.2c0 5 1.8 9.3 5.4 12.9l128 127.9c3.6 3.6 7.8 5.4 12.8 5.4s9.2-1.8 12.8-5.4L287 95c3.5-3.5 5.4-7.8 5.4-12.8 0-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E');
+    background-repeat: no-repeat;
+    background-position: right var(--spacing-md) center;
+    background-size: .75em auto;
+    padding-right: calc(var(--spacing-md) * 2.5); /* Space for arrow */
+}
+
+select:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(var(--accent-color), 0.25);
+}
+
+select option {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+}
+
+/* --- Theme Toggle & Code Theme Selector --- */
+.theme-toggle {
+    position: fixed;
+    top: var(--spacing-sm); /* Closer to edge */
+    right: var(--spacing-md);
+    z-index: 1000;
+    display: flex;
+    gap: var(--spacing-sm);
+    align-items: center;
+}
+
+#themeToggle {
+    padding: var(--spacing-xs) var(--spacing-sm); /* Smaller button */
+    font-size: var(--font-size-lg); /* Larger icon */
+    line-height: 1;
+    background-color: var(--surface-2);
+    color: var(--text-muted);
+    border: var(--border-width) solid var(--surface-3);
+}
+#themeToggle:hover {
+    background-color: var(--surface-3);
+    color: var(--text-color);
+}
+
+#codeThemeSelector {
+    /* Inherits general select styles */
+    min-width: 120px; /* Give it some base width */
+}
+
+/* --- Search Highlighting --- */
+.search-result {
+    background-color: var(--search-highlight-bg);
+    border-radius: var(--radius-sm);
+    padding: 0 2px;
+    margin: 0 -2px; /* Prevent layout shift */
+    transition: background-color var(--transition-speed) var(--transition-func);
+}
+
+.search-result.current {
+    background-color: var(--search-highlight-current-bg);
+    box-shadow: 0 0 0 1px var(--search-highlight-current-bg); /* Subtle outline */
+}
+
+/* --- Responsive Design --- */
+.toggle-sidebar {
+    display: none; /* Hidden by default */
+    position: fixed;
+    left: var(--spacing-md);
+    top: var(--spacing-sm);
+    z-index: 1001;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: var(--font-size-lg);
+    background-color: var(--surface-2);
+    color: var(--text-muted);
+    border: var(--border-width) solid var(--surface-3);
+    border-radius: var(--radius-md);
+}
+
+@media (max-width: 768px) {
+    #sidebar {
+        position: fixed;
+        left: -300px; /* Start off-screen */
+        z-index: 1000;
+        transition: left 0.3s ease;
+        box-shadow: var(--shadow-md);
+        border-right: none; /* Remove border when overlaying */
+    }
+
+    #sidebar.active {
+        left: 0;
+    }
+
+    .toggle-sidebar {
+        display: block; /* Show toggle button */
+    }
+
+    /* Adjust content search controls for smaller screens */
+    .search-controls {
+        grid-template-columns: 1fr auto auto; /* Input takes most space */
+        gap: var(--spacing-xs);
+        padding: var(--spacing-xs) var(--spacing-sm);
+    }
+    .search-controls .search-count {
+        display: none; /* Hide count on small screens */
+    }
+
+    .navigation {
+        padding-left: calc(var(--spacing-md) * 2.5); /* Make space for toggle button */
+    }
+
+    .theme-toggle {
+        top: auto;
+        bottom: var(--spacing-md); /* Move to bottom right */
+        right: var(--spacing-md);
+    }
+}
+
+/* --- Scrollbars (Optional Styling) --- */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: var(--surface-1);
+}
+::-webkit-scrollbar-thumb {
+    background: var(--surface-3);
+    border-radius: var(--radius-lg);
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+}

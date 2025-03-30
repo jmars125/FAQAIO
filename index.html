@@ -2,298 +2,17 @@
 <html>
 <head>
     <title>Game Walkthrough Viewer</title>
-    <style>
-        :root {
-            --bg-color: #ffffff;
-            --text-color: #2c3e50;
-            --sidebar-bg: #f8f9fa;
-            --hover-color: #e9ecef;
-            --code-bg: #f8f8f8;
-            --section-border: #dee2e6;
-            --subsection-bg: #f5f5f5;
-            --primary-color: #007bff;
-            --primary-hover: #0056b3;
-            --radius-sm: 4px;
-            --radius-md: 6px;
-            --spacing-xs: 4px;
-            --spacing-sm: 8px;
-            --spacing-md: 16px;
-            --spacing-lg: 24px;
-            --font-size-sm: 14px;
-            --font-size-md: 16px;
-            --transition: all 0.2s ease-in-out;
-        }
-
-        [data-theme="dark"] {
-            --bg-color: #1a1a1a;
-            --text-color: #e1e1e1;
-            --sidebar-bg: #2d2d2d;
-            --hover-color: #3d3d3d;
-            --code-bg: #2a2a2a;
-            --section-border: #404040;
-            --subsection-bg: #2a2a2a;
-            --primary-color: #4dabf7;
-            --primary-hover: #339af0;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            display: flex;
-            transition: var(--transition);
-            line-height: 1.5;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        #sidebar {
-            width: 300px;
-            height: 100vh;
-            background-color: var(--sidebar-bg);
-            border-right: 1px solid var(--section-border);
-            display: flex;
-            flex-direction: column;
-            transition: var(--transition);
-        }
-
-        .controls {
-            padding: var(--spacing-md);
-            border-bottom: 1px solid var(--section-border);
-            display: flex;
-            flex-direction: column;
-            gap: var(--spacing-sm);
-            position: sticky;
-            top: 0;
-            background-color: var(--sidebar-bg);
-            z-index: 10;
-        }
-
-        #toc {
-            flex: 1;
-            overflow-y: auto;
-            padding: var(--spacing-md);
-        }
-
-        button {
-            padding: var(--spacing-sm) var(--spacing-md);
-            border: none;
-            background-color: var(--primary-color);
-            color: white;
-            border-radius: var(--radius-sm);
-            cursor: pointer;
-            font-size: var(--font-size-sm);
-            transition: var(--transition);
-        }
-
-        button:hover:not(:disabled) {
-            background-color: var(--primary-hover);
-        }
-
-        button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        input[type="text"] {
-            padding: var(--spacing-sm);
-            border: 1px solid var(--section-border);
-            border-radius: var(--radius-sm);
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            font-size: var(--font-size-sm);
-            width: 100%;
-            transition: var(--transition);
-        }
-
-        input[type="text"]:focus {
-            outline: none;
-            border-color: var(--primary-color);
-        }
-
-        .search-controls {
-            padding: var(--spacing-md);
-            background-color: var(--bg-color);
-            border-bottom: 1px solid var(--section-border);
-            display: grid;
-            grid-template-columns: 1fr auto auto auto;
-            gap: var(--spacing-sm);
-            align-items: center;
-            position: sticky;
-            top: 56px;
-            z-index: 10;
-        }
-
-        .search-count {
-            font-size: var(--font-size-sm);
-            color: var(--text-color);
-            white-space: nowrap;
-        }
-
-        .search-result {
-            background-color: rgba(255, 215, 0, 0.3);
-            border-radius: var(--radius-sm);
-            padding: 0 2px;
-        }
-
-        [data-theme="dark"] .search-result {
-            background-color: rgba(255, 215, 0, 0.2);
-        }
-
-        .search-result.current {
-            background-color: rgba(255, 215, 0, 0.6);
-        }
-
-        #content-wrapper {
-            flex: 1;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .navigation {
-            padding: var(--spacing-md);
-            background-color: var(--bg-color);
-            border-bottom: 1px solid var(--section-border);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-
-        .nav-title {
-            font-weight: 600;
-            text-align: center;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        #content {
-            flex: 1;
-            padding: var(--spacing-md);
-            overflow-y: auto;
-            line-height: 1.6;
-            white-space: pre-wrap;
-            font-family: 'Courier New', Courier, monospace;
-        }
-
-        .section-header {
-            font-size: 1.2em;
-            font-weight: 600;
-            padding: var(--spacing-md) 0;
-            border-bottom: 1px solid var(--section-border);
-            margin-bottom: var(--spacing-md);
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-        }
-
-        .subsection-header {
-            font-size: 1.1em;
-            font-weight: 500;
-            padding: var(--spacing-sm) 0;
-            border-bottom: 1px dashed var(--section-border);
-            margin: var(--spacing-md) 0 var(--spacing-sm);
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-        }
-
-        #toc a {
-            display: block;
-            padding: var(--spacing-sm);
-            color: var(--text-color);
-            text-decoration: none;
-            border-radius: var(--radius-sm);
-            margin: 2px 0;
-            transition: var(--transition);
-        }
-
-        #toc a:hover {
-            background-color: var(--hover-color);
-        }
-
-        #toc .section-code {
-            color: var(--primary-color);
-            font-size: var(--font-size-sm);
-            opacity: 0.8;
-        }
-
-        #toc .subsection {
-            padding-left: var(--spacing-lg);
-            font-size: var(--font-size-sm);
-        }
-
-        .theme-toggle {
-            position: fixed;
-            top: var(--spacing-md);
-            right: var(--spacing-md);
-            z-index: 1000;
-        }
-
-        @media (max-width: 768px) {
-            #sidebar {
-                position: fixed;
-                left: -300px;
-                z-index: 1000;
-                transition: left 0.3s ease;
-            }
-
-            #sidebar.active {
-                left: 0;
-            }
-
-            .search-controls {
-                grid-template-columns: 1fr;
-            }
-
-            .navigation {
-                padding: var(--spacing-sm);
-            }
-
-            .theme-toggle {
-                top: auto;
-                bottom: var(--spacing-md);
-            }
-        }
-
-        .toggle-sidebar {
-            display: none;
-            position: fixed;
-            left: var(--spacing-md);
-            top: var(--spacing-md);
-            z-index: 1001;
-        }
-
-        @media (max-width: 768px) {
-            .toggle-sidebar {
-                display: block;
-            }
-        }
-
-        .section-anchor {
-            position: relative;
-            top: -50px;
-            visibility: hidden;
-        }
-    </style>
+    <link rel="stylesheet" href="styles/main.css"> <!-- Link external CSS -->
+    <meta charset="UTF-8"> <!-- Ensure proper character encoding -->
 </head>
 <body>
     <button class="toggle-sidebar" id="toggleSidebar">☰</button>
     <div id="sidebar">
         <div class="controls">
-            <button id="openFile">Open Walkthrough</button>
-            <input type="text" id="url-box" placeholder="Enter GameFAQs URL...">
-            <button id="loadUrl">Load URL</button>
             <input type="text" id="search-box" placeholder="Search sections...">
+            <button id="openFile">Open Walkthrough</button>
+            <input type="text" id="url-box" placeholder="Enter FAQ URL...">
+            <button id="loadUrl">Load URL</button>
         </div>
         <div id="toc"></div>
     </div>
@@ -310,32 +29,175 @@
         <div id="content"></div>
     </div>
     <div class="theme-toggle">
-        <button id="themeToggle">🌓</button>
+        <!-- Theme Toggle Button Removed -->
+        <select id="codeThemeSelector">
+            <option value="">Default (Light)</option> <!-- Clarify default -->
+            <option value="monokai">Monokai</option>
+            <option value="solarized-dark">Solarized Dark</option>
+            <option value="dracula">Dracula</option>
+            <option value="github-dark">GitHub Dark</option>
+        </select>
     </div>
 
     <script>
         const { ipcRenderer } = require('electron');
-        const marked = require('marked');
+        // const marked = require('marked'); // Not used currently
 
-        let isDarkMode = false;
-        const themeToggle = document.getElementById('themeToggle');
+        // isDarkMode variable and themeToggle element are no longer needed
+        const codeThemeSelector = document.getElementById('codeThemeSelector'); // Get the theme selector
         const body = document.body;
         const searchBox = document.getElementById('search-box');
         const navTitle = document.querySelector('.nav-title');
         let currentWalkthrough = null;
-        let sections = [];
+        let sections = []; // Stores { title: string, code: string }
         let searchMatches = [];
         let currentMatchIndex = -1;
+        let firstTocCode = null;
+        let tocEndLineIndex = -1; // Store the line index where TOC ends
 
-        themeToggle.addEventListener('click', () => {
-            isDarkMode = !isDarkMode;
-            body.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
-            localStorage.setItem('darkMode', isDarkMode);
+        // --- Combined UI and Code Theme Switching Logic ---
+        const CODE_THEME_STORAGE_KEY = 'codeTheme';
+        const CODE_THEME_LINK_ID = 'code-theme-style';
+
+        // Define UI color palettes for each theme
+        const uiThemes = {
+            'default': { // Matches :root in CSS (Light Theme)
+                '--bg-color': '#ffffff',
+                '--text-color': '#212529',
+                '--text-muted': '#6c757d',
+                '--border-color': '#dee2e6',
+                '--accent-color': '#0d6efd',
+                '--accent-hover': '#0b5ed7',
+                '--accent-text': '#ffffff',
+                '--surface-1': '#f8f9fa',
+                '--surface-2': '#e9ecef',
+                '--surface-3': '#ced4da',
+                '--code-bg': '#f1f3f5',
+                '--search-highlight-bg': 'rgba(255, 229, 100, 0.5)',
+                '--search-highlight-current-bg': 'rgba(255, 193, 7, 0.6)',
+            },
+            'monokai': {
+                '--bg-color': '#272822',
+                '--text-color': '#F8F8F2',
+                '--text-muted': '#75715E',
+                '--border-color': '#49483E',
+                '--accent-color': '#A6E22E', // Green accent
+                '--accent-hover': '#CFE89B',
+                '--accent-text': '#272822', // Dark text on light green button
+                '--surface-1': '#3E3D32',
+                '--surface-2': '#49483E',
+                '--surface-3': '#75715E',
+                '--code-bg': '#272822',
+                '--search-highlight-bg': 'rgba(253, 151, 31, 0.3)', // Orange highlight
+                '--search-highlight-current-bg': 'rgba(253, 151, 31, 0.5)',
+            },
+            'solarized-dark': {
+                '--bg-color': '#002b36',
+                '--text-color': '#839496',
+                '--text-muted': '#586e75',
+                '--border-color': '#073642',
+                '--accent-color': '#268bd2', // Blue accent
+                '--accent-hover': '#1a6a9e',
+                '--accent-text': '#ffffff',
+                '--surface-1': '#073642',
+                '--surface-2': '#586e75',
+                '--surface-3': '#657b83',
+                '--code-bg': '#002b36',
+                '--search-highlight-bg': 'rgba(181, 137, 0, 0.3)', // Yellow highlight
+                '--search-highlight-current-bg': 'rgba(181, 137, 0, 0.5)',
+            },
+            'dracula': {
+                '--bg-color': '#282a36',
+                '--text-color': '#f8f8f2',
+                '--text-muted': '#6272a4',
+                '--border-color': '#44475a',
+                '--accent-color': '#bd93f9', // Purple accent
+                '--accent-hover': '#9a70d7',
+                '--accent-text': '#f8f8f2',
+                '--surface-1': '#383a59',
+                '--surface-2': '#44475a',
+                '--surface-3': '#6272a4',
+                '--code-bg': '#282a36',
+                '--search-highlight-bg': 'rgba(80, 250, 123, 0.2)', // Green highlight
+                '--search-highlight-current-bg': 'rgba(80, 250, 123, 0.4)',
+            },
+            'github-dark': {
+                '--bg-color': '#0d1117',
+                '--text-color': '#c9d1d9',
+                '--text-muted': '#8b949e',
+                '--border-color': '#30363d',
+                '--accent-color': '#58a6ff', // Blue accent
+                '--accent-hover': '#3a84ff',
+                '--accent-text': '#ffffff',
+                '--surface-1': '#161b22',
+                '--surface-2': '#21262d',
+                '--surface-3': '#30363d',
+                '--code-bg': '#0d1117',
+                '--search-highlight-bg': 'rgba(255, 215, 0, 0.2)', // Yellow highlight
+                '--search-highlight-current-bg': 'rgba(255, 215, 0, 0.4)',
+            }
+        };
+
+        function applyCodeTheme(themeName) {
+            const rootStyle = document.documentElement.style;
+            const selectedPalette = uiThemes[themeName] || uiThemes['default']; // Fallback to default
+
+            // 1. Apply UI Theme Variables
+            // Clear previously set variables first
+            Object.keys(uiThemes['default']).forEach(key => {
+                rootStyle.removeProperty(key);
+            });
+            // Set new variables if not default
+            if (themeName) {
+                 Object.entries(selectedPalette).forEach(([key, value]) => {
+                    rootStyle.setProperty(key, value);
+                 });
+                 console.log(`Applied UI theme palette: ${themeName}`);
+            } else {
+                 console.log('Applied default UI theme palette.');
+            }
+
+
+            // 2. Apply Code Syntax Highlighting Theme (existing logic)
+            // Remove previous theme class from body
+            body.className = body.className.replace(/\btheme-\S+/g, '').trim();
+            // Remove previous theme stylesheet link
+            const existingLink = document.getElementById(CODE_THEME_LINK_ID);
+            if (existingLink) {
+                existingLink.remove();
+            }
+
+            if (themeName) {
+                // Add new theme class to body for code syntax styles
+                body.classList.add(`theme-${themeName}`);
+                // Add new theme stylesheet link for code syntax styles
+                const link = document.createElement('link');
+                link.id = CODE_THEME_LINK_ID;
+                link.rel = 'stylesheet';
+                link.href = `themes/${themeName}.css`;
+                document.head.appendChild(link);
+                console.log(`Applied code theme: ${themeName}`);
+            } else {
+                 console.log('Removed code theme (default style).');
+            }
+
+            // Save preference
+            localStorage.setItem(CODE_THEME_STORAGE_KEY, themeName || '');
+        }
+
+        // Event listener for theme selector change
+        codeThemeSelector.addEventListener('change', (e) => {
+            applyCodeTheme(e.target.value);
         });
 
-        // Load saved theme preference
-        isDarkMode = localStorage.getItem('darkMode') === 'true';
-        body.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
+        // Load saved code theme preference on startup
+        const savedCodeTheme = localStorage.getItem(CODE_THEME_STORAGE_KEY);
+        if (savedCodeTheme) {
+            codeThemeSelector.value = savedCodeTheme;
+            applyCodeTheme(savedCodeTheme);
+        }
+        // --- End Code Theme Switching Logic ---
+
 
         searchBox.addEventListener('input', (e) => {
             const searchTerm = e.target.value.toLowerCase();
@@ -367,6 +229,7 @@
                     }
                 } catch (error) {
                     console.error('Error loading URL:', error);
+                    document.getElementById('content').textContent = `Error loading guide: ${error.message}`;
                 }
             }
         });
@@ -394,202 +257,394 @@
             }
         });
 
+        // --- Helper function to check if a line looks like a potential TOC entry ---
+        function isPotentialTocEntryLine(line) {
+            const trimmedLine = line.trim();
+            if (!trimmedLine || trimmedLine.match(/^[-=+\*#_]{3,}$/) || trimmedLine.startsWith('+---')) {
+                return false;
+            }
+            // Check specific known TOC formats first
+            if (trimmedLine.match(/^\|\s*.*\s*\|\s*[A-Z0-9\.]+\s*\|?$/)) return true; // | Title | Code | <-- Explicit check added
+            if (trimmedLine.match(/.*\s*\.{3,}\s*(\[?[A-Z0-9\._-]+\]?)$/)) return true; // Title ....... Code or [Code]
+            if (trimmedLine.match(/^\[[A-Z0-9\.]+\]\s+.+/)) return true; // [Code] Title
+
+            // Generic check: Does it have a plausible code at the end?
+            const codePattern = /(?:[\[\(\{])?([A-Z0-9][A-Z0-9\.\-_]{1,18}[A-Z0-9]?|[A-Z]{2,6})(?:[\)\}\]])?$/;
+            const codeMatch = trimmedLine.match(codePattern);
+            if (codeMatch && codeMatch.index > 0 && trimmedLine.substring(0, codeMatch.index).trim().length > 1) {
+                return true;
+            }
+            // Check for Code Title pattern (like Roman numerals)
+             const codeTitleMatch = trimmedLine.match(/^([A-Z0-9\.\-]+)\s+(.*?)$/);
+             if (codeTitleMatch && codeTitleMatch[1].length > 0 && codeTitleMatch[1].length < 15 && /[A-Z0-9]/.test(codeTitleMatch[1]) && codeTitleMatch[2].length > 1) {
+                 if (codeTitleMatch[1].match(/^[IVXLCDM]+\.?$|^[A-Z]\.?$|^[0-9]+\)?\.?$/) || codeTitleMatch[1].includes('.')) {
+                     return true;
+                 }
+             }
+            return false;
+        }
+
+        // --- Helper function to parse a line and extract Title/Code (Dynamic Heuristic) ---
+        function parseTocLineDynamic(line) {
+            const trimmedLine = line.trim();
+            if (!trimmedLine || trimmedLine.match(/^[-=+\*#_]{3,}$/) || trimmedLine.startsWith('+---')) {
+                return null;
+            }
+
+            let title = null;
+            let code = null;
+            let match;
+
+            // Regex for potential codes (more flexible)
+            const codeRegex = /[\[\(\{]?([A-Z0-9][A-Z0-9\.\-_]{1,18}[A-Z0-9]?|[A-Z]{2,6})(?:[\)\}\]]?)$/;
+
+            // Try specific patterns first
+            // GameFAQs dots: Ensure title isn't just dots/hyphens
+            match = trimmedLine.match(/^(.*?)\s*\.{3,}\s*(?:\[([A-Z0-9\._-]+)\]|([A-Z0-9\._-]+))$/);
+            if (match) {
+                const potentialTitle = match[1].trim().replace(/^[-.\s*]+|[-.\s*]+$/g, '').trim(); // Clean ends
+                if (potentialTitle.length > 0 && !/^[.-]+$/.test(potentialTitle)) { title = potentialTitle; code = match[2] || match[3]; }
+            }
+
+            // Neoseeker pipes: Ensure title isn't empty after trim
+            if (!code) {
+                match = trimmedLine.match(/^\|\s*(.*?)\s*\|\s*([A-Z0-9\.]+)\s*\|?$/);
+                if (match) {
+                    const potentialTitle = match[1].trim();
+                    if (potentialTitle.length > 0 && match[2].trim().length > 1) { title = potentialTitle; code = match[2].trim(); }
+                }
+            }
+
+            // [Code] Title: Ensure title isn't empty after trim
+            if (!code) {
+                 match = trimmedLine.match(/^\[([A-Z0-9\.]+)\]\s+(.*?)$/);
+                 if (match) {
+                    const potentialTitle = match[2].trim();
+                    if (match[1].length > 1 && potentialTitle.length > 0) { code = match[1]; title = potentialTitle; }
+                 }
+             }
+
+            // Generic Heuristic: Find last potential code if specific patterns failed
+            if (!code) {
+                const codeMatch = trimmedLine.match(codeRegex);
+                if (codeMatch) {
+                    const potentialCode = codeMatch[1];
+                    const codeIndex = trimmedLine.lastIndexOf(codeMatch[0]); // Index of the start of the full code match
+                    if (codeIndex > 0 && potentialCode.length < trimmedLine.length) {
+                        // Extract potential title more carefully
+                        let potentialTitle = trimmedLine.substring(0, codeIndex).trim();
+                        // Aggressive cleaning of leading/trailing junk
+                        potentialTitle = potentialTitle
+                            .replace(/^[*\-+\s.[|]+|[*\-+\s.|]+$/g, '') // Remove leading/trailing * - + . | space
+                            .replace(/^\d+\.\s*/, '') // Remove leading "1. "
+                            .trim();
+                        if (potentialTitle.length > 0 && potentialCode.length >= 1 && !/^[.|-]+$/.test(potentialTitle)) {
+                            title = potentialTitle; code = potentialCode;
+                            // console.log(`Parsed via generic heuristic: Title='${title}', Code='${code}'`);
+                        }
+                    }
+                }
+            }
+
+            // --- Final Cleaning and Validation ---
+            if (title && code && title.length > 0) {
+                // More aggressive cleaning on the final title candidate
+                let cleanedTitle = title
+                    .replace(/^[*\-+\s.|]+|[*\-+\s.|]+$/g, '') // Remove leading/trailing * - + . | space again
+                    .replace(/^(Chapter|Prologue|Section|Part)\s*[0-9IVX]+[-\s:\.]*/i, '') // Remove section prefixes
+                    .replace(/^\d+\.\s*/, '') // Remove leading "1. " again
+                    .trim();
+
+                // Ensure title is not just separators or identical to code
+                if (cleanedTitle.length > 0 && !/^[.|-]+$/.test(cleanedTitle) && cleanedTitle.toUpperCase() !== code.toUpperCase()) {
+                    return { title: cleanedTitle, code };
+                } else {
+                     // console.log(`Skipping entry after final cleaning: "${line}" -> Title='${cleanedTitle}', Code='${code}'`);
+                }
+            }
+
+            // console.log(`Failed to parse line as TOC entry: "${line}"`); // Reduce noise
+            return null;
+        }
+
+
         function buildTableOfContents(content) {
             const lines = content.split('\n');
             const toc = document.getElementById('toc');
             toc.innerHTML = '';
             sections = [];
+            firstTocCode = null;
+            tocEndLineIndex = -1;
 
-            let currentSection = null;
-            let sectionContent = [];
-            let inTableOfContents = false;
-            let tocEndMarkers = 0;  // Count potential TOC end markers
+            let tocStartIndex = -1;
+            let tocEndIndexLocal = -1;
+            const maxTocSearchLines = 500;
 
-            // Helper function to detect section codes
-            function detectSectionCode(line) {
-                const patterns = [
-                    // FF8 style with curly braces and subsections
-                    /\{([A-Z0-9][A-Z0-9\.-]*)\}/,  // Matches {WAL}, {C1.1}, {INF-1}, etc.
-                    // Dots/dashes followed by code
-                    /[.\-]{3,}\s*([A-Z0-9]{2,6})$/,
-                    // Bracketed code
-                    /\[([A-Z0-9]{2,6})\]/,
-                    // Parentheses code
-                    /\(([A-Z0-9]{2,6})\)/,
-                    // Code at start or end with separator
-                    /^([A-Z0-9]{2,6})[:\-\s]|[:\-\s]([A-Z0-9]{2,6})$/,
-                    // Code followed by dots/dashes
-                    /^([A-Z0-9]{2,6})[.\-]{3,}/,
-                    // Just the code by itself (last resort)
-                    /^([A-Z0-9]{2,6})$/
-                ];
-
-                for (const pattern of patterns) {
-                    const match = line.match(pattern);
-                    if (match) {
-                        // Return the first non-null capturing group
-                        return match.slice(1).find(group => group);
-                    }
-                }
-                return null;
-            }
-
-            // Helper function to detect TOC markers
-            function isTocMarker(line) {
-                const upperLine = line.toUpperCase();
-                return upperLine.includes('TABLE OF CONTENTS') || 
-                       upperLine === 'CONTENTS' ||
-                       upperLine.match(/^[-=]{3,}\s*CONTENTS\s*[-=]{3,}$/) ||
-                       upperLine.includes('Oo*=-*=-*=-*=-*=-*=-*=-*=-*=-*=-*=-*=-*=-*=-*=-*=-*=-*=-*=-*=-*=-*=-*=-*=-*Oo') ||
-                       upperLine.match(/^[-=*]{3,}$/);  // Section separator lines
-            }
-
-            // Helper function to detect TOC end
-            function isTocEnd(line) {
-                return line.match(/^[IVX]+\.\s+[A-Z]/) ||  // Roman numerals
-                       line.match(/^={3,}$/) ||            // Separator line
-                       line.match(/^[-]{3,}$/) ||          // Separator line
-                       line.match(/^[*]{3,}$/) ||          // Separator line
-                       line.match(/^\s*={3,}\s*$/) ||      // Centered separator
-                       line.match(/^[A-Z\s]{20,}$/);       // All caps section
-            }
-
-            // Helper function to determine section level
-            function getSectionLevel(line) {
-                if (line.match(/^[IVX]+\./)) return 0;  // Main section with Roman numerals
-                if (line.match(/^\s*\{[A-Z0-9]+\}/)) return 1;  // First level subsection
-                if (line.match(/^\s*\{[A-Z0-9]+\.[0-9]+/)) return 2;  // Second level subsection
-                if (line.match(/^\s*\{[A-Z0-9]+-[0-9]+/)) return 2;  // Alternative second level
-                const indentLevel = line.search(/\S/);
-                return indentLevel > 0 ? Math.floor(indentLevel / 2) + 1 : 0;
-            }
-
-            // Helper function to clean up title
-            function cleanTitle(line) {
-                return line
-                    .replace(/\{[A-Z0-9][A-Z0-9\.-]*\}/g, '')  // Remove curly brace codes with dots/dashes
-                    .replace(/\[.*?\]/g, '')                // Remove bracketed content
-                    .replace(/\(.*?\)/g, '')                // Remove parenthetical content
-                    .replace(/\.{3,}.*$|-{3,}.*$/, '')     // Remove dots/dashes and anything after
-                    .replace(/^\s*[IVX0-9]+[\.\)]\s*/, '') // Remove Roman numerals and numbers
-                    .replace(/^\s*[-*+•]?\s*/, '')         // Remove bullets
-                    .replace(/\s*[:=]\s*$/, '')            // Remove trailing colons and equals
-                    .replace(/^[-=\s]+/, '')               // Remove leading separators
-                    .replace(/[-=\s]+$/, '')               // Remove trailing separators
-                    .trim();
-            }
-
-            // Process each line
-            for (let i = 0; i < lines.length; i++) {
-                const line = lines[i].trimEnd();  // Keep leading spaces but trim end
-                
-                // Skip empty lines
-                if (!line) continue;
-
-                // Skip pure separator lines unless they're TOC markers
-                if (/^[-=_\s*♦]+$/.test(line) && !isTocMarker(line)) continue;
-
-                // Check for table of contents start
-                if (!inTableOfContents && isTocMarker(line)) {
-                    inTableOfContents = true;
-                    tocEndMarkers = 0;
-                    continue;
-                }
-
-                // Skip if we haven't reached TOC yet
-                if (!inTableOfContents) continue;
-
-                // Check for potential TOC end
-                if (isTocEnd(line)) {
-                    tocEndMarkers++;
-                    // If we've seen multiple end markers, assume we're out of the TOC
-                    if (tocEndMarkers >= 2) {
-                        inTableOfContents = false;
-                    }
-                    continue;
-                }
-
-                if (inTableOfContents) {
-                    // Skip decorative lines
-                    if (/^[^a-zA-Z0-9]*$/.test(line)) continue;
-
-                    const code = detectSectionCode(line);
-                    if (code) {
-                        const title = cleanTitle(line);
-                        const level = getSectionLevel(line);
-                        
-                        // Don't add duplicate sections
-                        if (currentSection?.title !== title) {
-                            if (currentSection) {
-                                sections.push({
-                                    title: currentSection.title,
-                                    code: currentSection.code,
-                                    level: currentSection.level,
-                                    content: sectionContent.join('\n')
-                                });
-                                sectionContent = [];
-                            }
-
-                            currentSection = { title, code, level };
-
-                            // Create TOC entry
-                            const link = document.createElement('a');
-                            link.href = '#';
-                            link.innerHTML = `${title} <span class="section-code">[${code}]</span>`;
-                            
-                            // Add appropriate indentation based on level
-                            if (level > 0) {
-                                link.classList.add('subsection');
-                                link.style.paddingLeft = `${level * 20}px`;
-                            }
-                            
-                            link.onclick = (e) => {
-                                e.preventDefault();
-                                displaySection(title, code);
-                            };
-                            toc.appendChild(link);
+            // --- Step 1: Find TOC Start Index ---
+            const tocStartKeywords = ['TABLE OF CONTENTS', 'CONTENTS'];
+            console.log("Starting TOC Start detection...");
+            for (let i = 0; i < Math.min(lines.length, maxTocSearchLines); i++) {
+                const upperLine = lines[i].toUpperCase().trim();
+                if (tocStartKeywords.some(kw => upperLine.includes(kw))) {
+                    for (let j = i; j < Math.min(i + 5, lines.length); j++) {
+                        if (lines[j] && lines[j].trim().match(/^[-=+\*#_]{3,}$/)) {
+                            tocStartIndex = j + 1;
+                            console.log(`TOC Start Index (after separator) found at line ${tocStartIndex}`);
+                            break;
                         }
                     }
-                } else if (currentSection) {
-                    sectionContent.push(line);
+                    if (tocStartIndex === -1) {
+                        tocStartIndex = i + 1;
+                        console.log(`TOC Start Index (no separator) found at line ${tocStartIndex}`);
+                    }
+                    break;
                 }
             }
 
-            // Add the last section
-            if (currentSection) {
-                sections.push({
-                    title: currentSection.title,
-                    code: currentSection.code,
-                    level: currentSection.level,
-                    content: sectionContent.join('\n')
-                });
+            if (tocStartIndex === -1) {
+                console.warn("Could not detect TOC start.");
+                toc.innerHTML = '<em>Could not find Table of Contents start.</em>';
+                return;
             }
+
+            // --- Step 2: Find TOC End Index (Refined Logic) ---
+            console.log("Starting TOC End detection...");
+            const sectionStartKeywords = ['INTRODUCTION', 'VERSION HISTORY', 'PROLOGUE', 'CHAPTER', 'APPENDIX', 'WALKTHROUGH', 'LEGAL', 'FORWARD'];
+            const definitiveHeaderRegex = /^[=\-]+\s*[A-Z0-9\.]+\s+.*?\s*[=\-]+$/;
+            let consecutiveNonTocLines = 0;
+            let lastTocLikeLineIndex = tocStartIndex - 1;
+
+            for (let i = tocStartIndex; i < lines.length; i++) {
+                const upperLine = lines[i].toUpperCase().trim();
+                const trimmedLine = lines[i].trim();
+
+                const isSectionHeader = definitiveHeaderRegex.test(trimmedLine);
+                const startsWithKeyword = sectionStartKeywords.some(kw => upperLine.startsWith(kw));
+                const romanNumeralMatch = trimmedLine.match(/^[IVX]+\.\s+/);
+                const bracketCodeMatch = trimmedLine.match(/^\[([A-Z0-9\.]+)\]/);
+                const isPotentialSectionStart = isSectionHeader || startsWithKeyword || romanNumeralMatch || bracketCodeMatch;
+
+                const looksLikeToc = isPotentialTocEntryLine(lines[i]); // Use the corrected helper
+
+                // If it looks like a section start BUT NOT like a TOC entry, consider ending
+                if (isPotentialSectionStart && !looksLikeToc) {
+                     if (i > tocStartIndex + 3) { // Give a few lines buffer
+                         tocEndIndexLocal = i; // End before this line
+                         console.log(`TOC End Index (Section Start detected) found at line ${tocEndIndexLocal}`);
+                         break;
+                     }
+                }
+
+                // Heuristic: Check for consecutive lines that don't look like TOC entries
+                if (!looksLikeToc && trimmedLine.length > 5) {
+                    consecutiveNonTocLines++;
+                } else {
+                    consecutiveNonTocLines = 0; // Reset counter
+                    if (looksLikeToc) { // Only update if it actually looks like a TOC line
+                       lastTocLikeLineIndex = i;
+                    }
+                }
+
+                // If we have several consecutive non-TOC lines, end *after* the last good line
+                if (consecutiveNonTocLines >= 5) { // Use 5 as threshold
+                    tocEndIndexLocal = lastTocLikeLineIndex + 1; // End *after* the last line that looked like a TOC entry
+                    console.log(`TOC End Index (5+ non-TOC lines) found at line ${tocEndIndexLocal}`);
+                    break;
+                }
+
+                // Safety break
+                if (i > tocStartIndex + 400) {
+                     console.warn("TOC seems very long, stopping search for end index.");
+                     tocEndIndexLocal = i;
+                     break;
+                }
+            }
+
+            // Fallback
+            if (tocEndIndexLocal === -1) {
+                tocEndIndexLocal = Math.min(tocStartIndex + 300, lines.length);
+                console.warn(`Could not reliably detect TOC end. Limiting parsing to line ${tocEndIndexLocal}`);
+            }
+            tocEndLineIndex = tocEndIndexLocal;
+
+            // --- Step 3: Parse lines within the identified TOC block ---
+            console.log(`Parsing TOC block from line ${tocStartIndex} to ${tocEndLineIndex}`);
+            const potentialEntries = [];
+
+            for (let i = tocStartIndex; i < tocEndLineIndex; i++) {
+                const entry = parseTocLineDynamic(lines[i]); // Use the dynamic parser
+                if (entry) {
+                    if (firstTocCode === null) {
+                        firstTocCode = entry.code;
+                        console.log(`First TOC code set to: ${firstTocCode}`);
+                    }
+                    potentialEntries.push(entry);
+                }
+                // Logging is inside parseTocLineDynamic
+            }
+
+            // --- Step 4: Populate TOC ---
+            if (potentialEntries.length > 0) {
+                sections = potentialEntries;
+                sections.forEach(section => {
+                    const link = document.createElement('a');
+                    link.href = '#';
+                    link.textContent = section.title;
+                    // const codeSpan = document.createElement('span'); // Removed
+                    // codeSpan.className = 'section-code'; // Removed
+                    // codeSpan.textContent = `[${section.code}]`; // Removed
+                    // link.appendChild(codeSpan); // Removed
+                    link.onclick = (e) => {
+                        e.preventDefault();
+                        displaySection(section.title, section.code);
+                    };
+                    toc.appendChild(link);
+                });
+            } else {
+                toc.innerHTML = '<em>Could not automatically parse Table of Contents.</em>';
+                console.warn("No valid TOC entries found after parsing.");
+            }
+            console.log("Finished building TOC.");
         }
 
-        function displaySection(sectionTitle, sectionCode) {
-            const section = sections.find(s => s.title === sectionTitle);
-            if (section && currentWalkthrough) {
-                const contentDiv = document.getElementById('content');
-                
-                // Display the entire walkthrough if it's not already displayed
-                if (contentDiv.textContent !== currentWalkthrough) {
-                    contentDiv.textContent = currentWalkthrough;
-                }
-                
-                navTitle.textContent = section.title;
 
-                // Use the search function to find and highlight the section
-                const searchBox = document.getElementById('content-search-box');
-                
-                // Clear any existing search
-                searchBox.value = '';
-                clearContentHighlights();
-                
-                // Always search for the section code
-                if (sectionCode) {
-                    searchBox.value = sectionCode;
-                    searchInContent(sectionCode);
+        function displaySection(sectionTitle, sectionCode) {
+            const contentDiv = document.getElementById('content');
+            const content = contentDiv.textContent;
+            navTitle.textContent = sectionTitle;
+
+            clearContentHighlights();
+
+            // --- Special handling for the first TOC entry ---
+            if (sectionCode === firstTocCode && tocEndLineIndex !== -1) {
+                console.log(`Scrolling to end of TOC (line ${tocEndLineIndex}) for first section: ${sectionCode}`);
+                let tocEndCharIndex = 0;
+                const lines = content.split('\n');
+                for(let i = 0; i < tocEndLineIndex; i++) {
+                    tocEndCharIndex += (lines[i] ? lines[i].length : 0) + 1;
                 }
+
+                const tempRuler = document.createElement('span');
+                tempRuler.style.whiteSpace = 'pre-wrap';
+                tempRuler.style.fontFamily = getComputedStyle(contentDiv).fontFamily;
+                tempRuler.style.fontSize = getComputedStyle(contentDiv).fontSize;
+                tempRuler.style.visibility = 'hidden';
+                tempRuler.style.position = 'absolute';
+                tempRuler.textContent = content.substring(0, tocEndCharIndex);
+                document.body.appendChild(tempRuler);
+                const scrollTargetY = tempRuler.offsetHeight;
+                document.body.removeChild(tempRuler);
+
+                contentDiv.scrollTo({
+                    top: scrollTargetY - (contentDiv.clientHeight / 4),
+                    behavior: 'smooth'
+                });
+                searchMatches = [];
+                currentMatchIndex = -1;
+                updateSearchCount();
+                return;
+            }
+
+            // --- Normal search for other entries ---
+            const escapedCode = sectionCode.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            // Prioritize headers containing the code prominently
+            const headerPatterns = [
+                new RegExp(`^[=\\-]+\\s*${escapedCode}\\s+.*?\\s*[=\\-]+$`, 'm'), // === CODE TITLE ===
+                new RegExp(`^\\[${escapedCode}\\]\\s+.*?$`, 'm'),                 // [CODE] Title
+                new RegExp(`^${escapedCode}\\s+[=\\-]{3,}`, 'm'),                 // CODE ===
+                new RegExp(`^${escapedCode}\\s+.*?$`, 'm'),                       // CODE Title
+                new RegExp(`^[IVXLCDM]+\\.\\s+${escapedCode}\\b`, 'mi')           // I. CODE ...
+            ];
+             // Fallback: Find the code anywhere, preferably as a whole word or bracketed/parenthesized
+             const fallbackPatterns = [
+                 new RegExp(`^[=\\-]+\\s*.*?${escapedCode}.*?\\s*[=\\-]+$`, 'm'), // === ... CODE ... ===
+                 new RegExp(`[\\[\\(\\{]${escapedCode}[\\]\\)\\}]`, 'm'),         // [CODE] or (CODE) or {CODE}
+                 new RegExp(`\\b${escapedCode}\\b`, 'm')                         // CODE as whole word
+             ];
+
+            let match = null;
+            let foundIndex = -1;
+            let matchedLine = '';
+
+            // Find all potential matches *after* the TOC end character index
+            const tocEndCharIndex = content.split('\n').slice(0, tocEndLineIndex).join('\n').length + 1;
+            let searchStartIndex = tocEndCharIndex;
+
+            // Function to find the *first* match for a pattern after a given index
+            const findFirstMatchAfter = (pattern, startIndex) => {
+                 const searchContent = content.substring(startIndex);
+                 const result = searchContent.match(pattern);
+                 if (result) {
+                     return {
+                         index: result.index + startIndex, // Index relative to full content
+                         text: result[0] // The matched text itself
+                     };
+                 }
+                 return null;
+            };
+
+            let bestMatch = { index: Infinity, text: '' };
+
+            // Try primary header patterns first
+            for (const pattern of headerPatterns) {
+                const result = findFirstMatchAfter(pattern, searchStartIndex);
+                if (result && result.index < bestMatch.index) {
+                    bestMatch = result;
+                    console.log(`Found potential header match with pattern ${pattern} at index ${result.index}`);
+                }
+            }
+
+            // If no primary header found, try fallbacks
+            if (bestMatch.index === Infinity) {
+                 console.warn(`Could not find specific section header after TOC for code: ${sectionCode}. Trying fallback patterns.`);
+                 for (const pattern of fallbackPatterns) {
+                     const result = findFirstMatchAfter(pattern, searchStartIndex);
+                     if (result && result.index < bestMatch.index) {
+                         bestMatch = result;
+                         console.log(`Found fallback match with pattern ${pattern} at index ${result.index}`);
+                     }
+                 }
+            }
+
+             // If still not found, search for the raw code string
+             if (bestMatch.index === Infinity) {
+                 console.warn(`Could not find header/fallback pattern after TOC for code: ${sectionCode}. Searching for raw code string.`);
+                 const rawCodeRegex = new RegExp(`[\\s\\[\\(\\{]${escapedCode}[\\s\\]\\)\\}]`);
+                 const result = findFirstMatchAfter(rawCodeRegex, searchStartIndex);
+                  if (result) {
+                     bestMatch = result;
+                     console.log(`Found raw code string after TOC at index ${result.index}`);
+                 }
+             }
+
+            // Process the best match found
+            if (bestMatch.index !== Infinity) {
+                foundIndex = bestMatch.index;
+                // Get the full line containing the match for highlighting context
+                const lineStartIndex = content.lastIndexOf('\n', foundIndex) + 1;
+                const lineEndIndex = content.indexOf('\n', foundIndex);
+                matchedLine = content.substring(lineStartIndex, lineEndIndex !== -1 ? lineEndIndex : undefined);
+                foundIndex = lineStartIndex; // Scroll to the start of the line
+
+                let resultHtml = content.substring(0, foundIndex);
+                resultHtml += `<mark class="search-result current">${matchedLine.replace(/</g, "<").replace(/>/g, ">")}</mark>`;
+                resultHtml += content.substring(foundIndex + matchedLine.length);
+                contentDiv.innerHTML = resultHtml;
+
+                const currentMark = contentDiv.querySelector('.search-result.current');
+                if (currentMark) {
+                    setTimeout(() => {
+                        currentMark.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 50);
+                }
+                searchMatches = [{ index: foundIndex, length: matchedLine.length }];
+                currentMatchIndex = 0;
+                updateSearchCount();
+
+            } else {
+                console.error(`Could not find any occurrence of code after TOC: ${sectionCode}`);
+                clearContentHighlights();
+                updateSearchCount();
             }
         }
 
@@ -598,105 +653,88 @@
             const content = contentDiv.textContent;
             let matches = [];
 
-            // Reset content
-            clearContentHighlights();
+            if (!contentDiv.querySelector('.search-result.current')) {
+                 clearContentHighlights();
+            }
 
-            // For section codes, find matches by line
-            if (searchTerm.match(/^[A-Z0-9]{2,6}$/)) {
-                const lines = content.split('\n');
-                let currentIndex = 0;
-                
-                lines.forEach(line => {
-                    // Find all instances of the code in this line
-                    let lineMatch = line.indexOf(searchTerm);
-                    while (lineMatch !== -1) {
-                        // Check if the code is properly formatted (with dots/dashes before or brackets)
-                        const beforeCode = line.substring(0, lineMatch);
-                        const isValidMatch = 
-                            /[.\-]{3,}\s*$/.test(beforeCode) ||     // Dots/dashes before code
-                            line.substr(lineMatch - 1, 1) === '[' || // Code in brackets
-                            line.substr(lineMatch + searchTerm.length, 1) === ']';
-
-                        if (isValidMatch) {
-                            matches.push({
-                                index: currentIndex + lineMatch,
-                                length: searchTerm.length,
-                                line: line.trim()
-                            });
-                        }
-                        lineMatch = line.indexOf(searchTerm, lineMatch + 1);
-                    }
-                    currentIndex += line.length + 1;
-                });
-
-                // Select appropriate match based on count
-                if (matches.length === 4) {
-                    currentMatchIndex = 2;  // Use third match for 4 matches
-                } else if (matches.length >= 2) {
-                    currentMatchIndex = 1;  // Use second match for 2+ matches
-                } else if (matches.length === 1) {
-                    currentMatchIndex = 0;  // Use only match
-                }
-            } else {
-                // For regular searches, find all matches
-                const regex = new RegExp(searchTerm, 'gi');
-                let match;
-                while ((match = regex.exec(content)) !== null) {
+            const escapedSearchTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const regex = new RegExp(escapedSearchTerm, 'gi');
+            let matchResult;
+            while ((matchResult = regex.exec(content)) !== null) {
+                 if (!content.substring(matchResult.index - 20, matchResult.index + 20).includes('<mark')) {
                     matches.push({
-                        index: match.index,
-                        length: match[0].length
+                        index: matchResult.index,
+                        length: matchResult[0].length
                     });
-                }
-                currentMatchIndex = matches.length > 0 ? 0 : -1;
+                 }
             }
 
             searchMatches = matches;
+            currentMatchIndex = matches.length > 0 ? 0 : -1;
 
-            // Apply highlights
             if (searchMatches.length > 0) {
-                let result = '';
-                let lastIndex = 0;
-
-                searchMatches.forEach(match => {
-                    result += content.substring(lastIndex, match.index);
-                    result += `<mark class="search-result">${content.substr(match.index, match.length)}</mark>`;
-                    lastIndex = match.index + match.length;
-                });
-
-                result += content.substring(lastIndex);
-                contentDiv.innerHTML = result;
+                 if (!contentDiv.querySelector('.search-result.current') || searchMatches.length > 1) {
+                    let result = '';
+                    let lastIndex = 0;
+                    const originalContent = currentWalkthrough || contentDiv.textContent;
+                    searchMatches.forEach(m => {
+                        result += originalContent.substring(lastIndex, m.index);
+                        const matchText = originalContent.substr(m.index, m.length);
+                        result += `<mark class="search-result">${matchText.replace(/</g, "<").replace(/>/g, ">")}</mark>`;
+                        lastIndex = m.index + m.length;
+                    });
+                    result += originalContent.substring(lastIndex);
+                    contentDiv.innerHTML = result;
+                 }
                 highlightCurrentMatch();
             } else {
-                contentDiv.textContent = content;
+                 clearContentHighlights();
             }
 
             updateSearchCount();
         }
+
 
         function clearContentHighlights() {
             const contentDiv = document.getElementById('content');
-            // Simply restore the original text content
-            if (currentWalkthrough) {
-                contentDiv.textContent = currentWalkthrough;
+            if (currentWalkthrough && contentDiv.innerHTML.includes('<mark')) {
+                 contentDiv.textContent = currentWalkthrough;
             }
             searchMatches = [];
             currentMatchIndex = -1;
-            updateSearchCount();
+            // updateSearchCount(); // Let calling function update count
         }
 
+
         function highlightCurrentMatch() {
-            if (searchMatches.length === 0) return;
+            if (searchMatches.length === 0) {
+                 updateSearchCount();
+                 return;
+            }
 
             const marks = document.querySelectorAll('.search-result');
             marks.forEach(mark => mark.classList.remove('current'));
 
+            if (currentMatchIndex < 0 || currentMatchIndex >= marks.length) {
+                currentMatchIndex = 0;
+            }
+             if (marks.length === 0) {
+                 updateSearchCount();
+                 return;
+             }
+
             const currentMark = marks[currentMatchIndex];
             if (currentMark) {
                 currentMark.classList.add('current');
-                currentMark.scrollIntoView({ 
-                    behavior: 'smooth', 
-                    block: 'center'
-                });
+                 const rect = currentMark.getBoundingClientRect();
+                 const parentRect = contentDiv.getBoundingClientRect();
+                 const isVisible = rect.top >= parentRect.top && rect.bottom <= parentRect.bottom;
+
+                 if (!isVisible) {
+                    setTimeout(() => {
+                        currentMark.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 50);
+                 }
             }
 
             updateSearchCount();
@@ -720,8 +758,8 @@
         document.addEventListener('click', (e) => {
             const sidebar = document.getElementById('sidebar');
             const toggleBtn = document.getElementById('toggleSidebar');
-            if (window.innerWidth <= 768 && 
-                !sidebar.contains(e.target) && 
+            if (window.innerWidth <= 768 &&
+                !sidebar.contains(e.target) &&
                 !toggleBtn.contains(e.target) &&
                 sidebar.classList.contains('active')) {
                 sidebar.classList.remove('active');
@@ -729,4 +767,4 @@
         });
     </script>
 </body>
-</html> 
+</html>

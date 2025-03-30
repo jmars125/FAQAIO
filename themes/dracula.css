@@ -1,0 +1,84 @@
+/* Dracula Theme */
+.theme-dracula {
+  --text-color: #f8f8f2; /* Base text */
+  --background-color: #282a36; /* Base background */
+  --comment-color: #6272a4;
+  --keyword-color: #ff79c6; /* Pink */
+  --string-color: #f1fa8c; /* Yellow */
+  --number-color: #bd93f9; /* Purple */
+  --operator-color: #ff79c6; /* Pink */
+  --function-color: #50fa7b; /* Green */
+  --class-color: #8be9fd; /* Cyan */
+  --link-color: #8be9fd; /* Cyan */
+  --selection-background: #44475a;
+  --pre-background: #282a36; /* Specific background for code blocks */
+  --pre-text-color: #f8f8f2; /* Specific text color for code blocks */
+}
+
+/* Apply theme's base colors to the main content area */
+.theme-dracula #content {
+  background-color: var(--background-color);
+  color: var(--text-color);
+  font-family: 'Courier New', Courier, monospace;
+  white-space: pre-wrap;
+}
+
+/* Apply theme variables to specific elements like code blocks */
+.theme-dracula pre,
+.theme-dracula code {
+  background-color: var(--pre-background);
+  color: var(--pre-text-color);
+  font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+  padding: 1em;
+  border-radius: 5px;
+  overflow: auto;
+  display: block;
+  white-space: pre;
+}
+
+.theme-dracula ::selection {
+  background: var(--selection-background);
+}
+
+/* Example token styles */
+.theme-dracula .token.comment,
+.theme-dracula .token.prolog,
+.theme-dracula .token.doctype,
+.theme-dracula .token.cdata {
+	color: var(--comment-color);
+}
+
+.theme-dracula .token.punctuation {
+	color: var(--pre-text-color);
+}
+
+.theme-dracula .token.keyword,
+.theme-dracula .token.selector,
+.theme-dracula .token.tag {
+  color: var(--keyword-color);
+}
+.theme-dracula .token.string,
+.theme-dracula .token.char,
+.theme-dracula .token.attr-value {
+  color: var(--string-color);
+}
+.theme-dracula .token.number,
+.theme-dracula .token.boolean,
+.theme-dracula .token.constant {
+  color: var(--number-color);
+}
+.theme-dracula .token.operator,
+.theme-dracula .token.entity,
+.theme-dracula .token.url {
+  color: var(--operator-color);
+}
+.theme-dracula .token.function,
+.theme-dracula .token.attr-name {
+  color: var(--function-color);
+}
+.theme-dracula .token.class-name,
+.theme-dracula .token.important,
+.theme-dracula .token.regex,
+.theme-dracula .token.variable {
+  color: var(--class-color);
+}

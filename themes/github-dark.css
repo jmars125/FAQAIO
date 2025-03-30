@@ -1,0 +1,84 @@
+/* GitHub Dark Theme */
+.theme-github-dark {
+  --text-color: #c9d1d9; /* Base text */
+  --background-color: #0d1117; /* Base background */
+  --comment-color: #8b949e;
+  --keyword-color: #ff7b72; /* Red */
+  --string-color: #a5d6ff; /* Light Blue */
+  --number-color: #79c0ff; /* Blue */
+  --operator-color: #ff7b72; /* Red */
+  --function-color: #d2a8ff; /* Purple */
+  --class-color: #ffa657; /* Orange */
+  --link-color: #58a6ff; /* Blue */
+  --selection-background: #161b22; /* Slightly lighter background */
+  --pre-background: #161b22; /* Specific background for code blocks (slightly lighter than main bg) */
+  --pre-text-color: #c9d1d9; /* Specific text color for code blocks */
+}
+
+/* Apply theme's base colors to the main content area */
+.theme-github-dark #content {
+  background-color: var(--background-color);
+  color: var(--text-color);
+  font-family: 'Courier New', Courier, monospace;
+  white-space: pre-wrap;
+}
+
+/* Apply theme variables to specific elements like code blocks */
+.theme-github-dark pre,
+.theme-github-dark code {
+  background-color: var(--pre-background);
+  color: var(--pre-text-color);
+  font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+  padding: 1em;
+  border-radius: 5px;
+  overflow: auto;
+  display: block;
+  white-space: pre;
+}
+
+.theme-github-dark ::selection {
+  background: var(--selection-background);
+}
+
+/* Example token styles */
+.theme-github-dark .token.comment,
+.theme-github-dark .token.prolog,
+.theme-github-dark .token.doctype,
+.theme-github-dark .token.cdata {
+	color: var(--comment-color);
+}
+
+.theme-github-dark .token.punctuation {
+	color: var(--pre-text-color);
+}
+
+.theme-github-dark .token.keyword,
+.theme-github-dark .token.selector,
+.theme-github-dark .token.tag {
+  color: var(--keyword-color);
+}
+.theme-github-dark .token.string,
+.theme-github-dark .token.char,
+.theme-github-dark .token.attr-value {
+  color: var(--string-color);
+}
+.theme-github-dark .token.number,
+.theme-github-dark .token.boolean,
+.theme-github-dark .token.constant {
+  color: var(--number-color);
+}
+.theme-github-dark .token.operator,
+.theme-github-dark .token.entity,
+.theme-github-dark .token.url {
+  color: var(--operator-color);
+}
+.theme-github-dark .token.function,
+.theme-github-dark .token.attr-name {
+  color: var(--function-color);
+}
+.theme-github-dark .token.class-name,
+.theme-github-dark .token.important,
+.theme-github-dark .token.regex,
+.theme-github-dark .token.variable {
+  color: var(--class-color);
+}

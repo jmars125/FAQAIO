@@ -1,0 +1,84 @@
+/* Solarized Dark Theme */
+.theme-solarized-dark {
+  --text-color: #839496; /* Base text */
+  --background-color: #002b36; /* Base background */
+  --comment-color: #586e75;
+  --keyword-color: #cb4b16; /* Orange */
+  --string-color: #2aa198; /* Cyan */
+  --number-color: #d33682; /* Magenta */
+  --operator-color: #859900; /* Green */
+  --function-color: #268bd2; /* Blue */
+  --class-color: #b58900; /* Yellow */
+  --link-color: #2aa198; /* Cyan */
+  --selection-background: #073642;
+  --pre-background: #002b36; /* Specific background for code blocks */
+  --pre-text-color: #839496; /* Specific text color for code blocks */
+}
+
+/* Apply theme's base colors to the main content area */
+.theme-solarized-dark #content {
+  background-color: var(--background-color);
+  color: var(--text-color);
+  font-family: 'Courier New', Courier, monospace;
+  white-space: pre-wrap;
+}
+
+/* Apply theme variables to specific elements like code blocks */
+.theme-solarized-dark pre,
+.theme-solarized-dark code {
+  background-color: var(--pre-background);
+  color: var(--pre-text-color);
+  font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+  padding: 1em;
+  border-radius: 5px;
+  overflow: auto;
+  display: block;
+  white-space: pre;
+}
+
+.theme-solarized-dark ::selection {
+  background: var(--selection-background);
+}
+
+/* Example token styles */
+.theme-solarized-dark .token.comment,
+.theme-solarized-dark .token.prolog,
+.theme-solarized-dark .token.doctype,
+.theme-solarized-dark .token.cdata {
+	color: var(--comment-color);
+}
+
+.theme-solarized-dark .token.punctuation {
+	color: var(--pre-text-color);
+}
+
+.theme-solarized-dark .token.keyword,
+.theme-solarized-dark .token.selector,
+.theme-solarized-dark .token.tag {
+  color: var(--keyword-color);
+}
+.theme-solarized-dark .token.string,
+.theme-solarized-dark .token.char,
+.theme-solarized-dark .token.attr-value {
+  color: var(--string-color);
+}
+.theme-solarized-dark .token.number,
+.theme-solarized-dark .token.boolean,
+.theme-solarized-dark .token.constant {
+  color: var(--number-color);
+}
+.theme-solarized-dark .token.operator,
+.theme-solarized-dark .token.entity,
+.theme-solarized-dark .token.url {
+  color: var(--operator-color);
+}
+.theme-solarized-dark .token.function,
+.theme-solarized-dark .token.attr-name {
+  color: var(--function-color);
+}
+.theme-solarized-dark .token.class-name,
+.theme-solarized-dark .token.important,
+.theme-solarized-dark .token.regex,
+.theme-solarized-dark .token.variable {
+  color: var(--class-color);
+}

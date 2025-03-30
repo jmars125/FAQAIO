@@ -1,0 +1,85 @@
+/* Monokai Theme */
+.theme-monokai {
+  --text-color: #F8F8F2;
+  --background-color: #272822;
+  --comment-color: #75715E;
+  --keyword-color: #F92672; /* Pink */
+  --string-color: #E6DB74; /* Yellow */
+  --number-color: #AE81FF; /* Purple */
+  --operator-color: #F92672; /* Pink */
+  --function-color: #A6E22E; /* Green */
+  --class-color: #A6E22E; /* Green */
+  --link-color: #66D9EF; /* Cyan */
+  --selection-background: #49483E;
+  --pre-background: #272822; /* Specific background for code blocks */
+  --pre-text-color: #F8F8F2; /* Specific text color for code blocks */
+}
+
+/* Apply theme's base colors to the main content area */
+.theme-monokai #content {
+  background-color: var(--background-color);
+  color: var(--text-color);
+  /* Ensure font remains monospace if desired */
+  font-family: 'Courier New', Courier, monospace;
+  white-space: pre-wrap; /* Keep existing whitespace handling */
+}
+
+/* Apply theme variables to specific elements like code blocks */
+.theme-monokai pre,
+.theme-monokai code {
+  background-color: var(--pre-background);
+  color: var(--pre-text-color);
+  font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+  padding: 1em;
+  border-radius: 5px;
+  overflow: auto;
+  display: block; /* Ensure pre takes block layout */
+  white-space: pre; /* Preserve whitespace */
+}
+
+.theme-monokai ::selection {
+  background: var(--selection-background);
+}
+
+/* Example token styles (adjust based on actual highlighter output) */
+.theme-monokai .token.comment,
+.theme-monokai .token.prolog,
+.theme-monokai .token.doctype,
+.theme-monokai .token.cdata {
+	color: var(--comment-color);
+}
+
+.theme-monokai .token.punctuation {
+	color: var(--pre-text-color); /* Use pre text color for punctuation */
+}
+
+.theme-monokai .token.keyword,
+.theme-monokai .token.selector,
+.theme-monokai .token.tag {
+  color: var(--keyword-color);
+}
+.theme-monokai .token.string,
+.theme-monokai .token.char,
+.theme-monokai .token.attr-value {
+  color: var(--string-color);
+}
+.theme-monokai .token.number,
+.theme-monokai .token.boolean,
+.theme-monokai .token.constant {
+  color: var(--number-color);
+}
+.theme-monokai .token.operator,
+.theme-monokai .token.entity,
+.theme-monokai .token.url {
+  color: var(--operator-color);
+}
+.theme-monokai .token.function,
+.theme-monokai .token.attr-name {
+  color: var(--function-color);
+}
+.theme-monokai .token.class-name,
+.theme-monokai .token.important,
+.theme-monokai .token.regex,
+.theme-monokai .token.variable {
+  color: var(--class-color);
+}
